@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="../css/zhuye_teacher.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>学生主页</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.location.href='zhuye_student.html'"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_student.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar_s.html'">讨论课</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">我的主页</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <div style="margin-top:30%;text-align: center;align-items: center;">
+            <img src="../icon/touxiang.jpg" class="round_icon" >
+        </div>
+        <div class="studentInfo" id="studentInfo">
+            <div class="itemInfo">
+                <p>姓名：{{formLabelAlign.name}}</p>
+                <p>学号：{{formLabelAlign.account}}</p>
+            </div>
+
+        </div>
+        <div class="line">
+
+        </div>
+        <div class="block">
+            <div class="buttonBlock">
+                <el-row>
+                    <el-button type="primary" onclick="window.location.href='myCourse_s.html'">我的课程<i
+                            class="el-icon-date el-icon--right"></i></el-button>
+                </el-row>
+            </div>
+            <div class="buttonBlock">
+                <el-row>
+                    <el-button type="primary" onclick="window.location.href='accountAndSet.html'">账户与设置<i
+                            class="el-icon-edit-outline el-icon--right"></i></el-button>
+                </el-row>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign: {
+                    id: 0,
+                    account: null,
+                    password: 0,
+                    name: "请稍等...",
+                    email: "",
+                }
+            }
+        },
+        methods: {
+            handleCommand(command) {
+
+                this.$message('click on item' + command);
+            }
+        },
+        mounted() {
+            // console.log(this.formLabelAlign=response2);
+            // console.log(this.formLabelAlign);
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            console.log(`jwt:${jwt}`);
+            axios.get(`/user/information`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+                // let teamID=this.formLabelAlign.
+            })
+                .catch(function (error) {
+                    console.log(error);
+                    alert(error);
+                    console.log(this.formLabelAlign);
+                });
+        },
+    });
+
+
+</script>
+</body>
+
+</html>

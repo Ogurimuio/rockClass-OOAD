@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="../css/accountAndSet.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <script src=" https://js.cybozu.cn/momentjs/2.22.1/moment-with-locales.min.js"></script>
+    <script src="https://cdn.bootcss.com/moment.js/2.22.2/moment.min.js"></script>
+    <title>创建课程</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">创建课程</div>
+        </p>
+    </div>
+
+    <div class="container">
+
+        <div class="studentInfo" id="studentInfo">
+            <el-form model="formLabelAlign">
+
+                <el-form-item label="班级名">
+                    <el-form-item label="年级">
+                        <el-input type="input" v-model="formLabelAlign.grade"></el-input>
+                    </el-form-item>
+                    <el-form-item label="班级">
+                        <el-input type="input" v-model="formLabelAlign.class"></el-input>
+                    </el-form-item>
+                </el-form-item>
+                <el-form-item label="上课时间">
+                    <el-input type="input" v-model="formLabelAlign.time"></el-input>
+                </el-form-item>
+                <el-form-item label="上课地点">
+                    <el-input type="input" v-model="formLabelAlign.classroom"></el-input>
+                </el-form-item>
+                <el-form-item label="学生名单">
+                    <div id="importBtn">
+                    <input type="file" id="class-list">上传文件</input>
+                    </div>
+                </el-form-item>
+            </el-form>
+        </div>
+        </br></br></br>
+        <div class="footer_white">
+            <el-button type="primary" @click="sub">提交</el-button>
+        </div>
+
+    </div>
+</div>
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign:{
+                    "grade": "",
+                    "class": "",
+                    "time": null,
+                    "classroom": null,
+
+                },
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+            sub:function(){
+                let jwt = localStorage.getItem('jwt');
+                let courseId=localStorage.getItem('clickCourse');
+                var name=this.formLabelAlign.grade+"-"+this.formLabelAlign.class;
+                console.log(name);
+                console.log(this.formLabelAlign);
+                axios({
+                    method:"post",
+                    url:`/course/${courseId}/class`,
+                    data:{
+                        "name":name,
+                        "time": this.formLabelAlign.time,
+                        "classroom": this.formLabelAlign.classroom,
+                    },
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+
+                    window.location.href="myCourse.html"
+                })
+            }
+        },
+        mounted() {
+            // console.log(this.formLabelAlign=response2);
+            // console.log(this.formLabelAlign);
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+
+        },
+    });
+
+    $("#class-list").click(function() {
+        let jwt = localStorage.getItem('jwt');
+        var classId = localStorage.getItem('clickClass');
+        var files = document.getElementById("importBtn").files;
+        console.log(files);
+        let formData = new FormData();
+        formData.append("file", files[0]);
+        console.log(formData.get("file"));
+
+        var cUrl = "/class/" + classId;
+        $.ajax({
+            type: 'put',
+            url: cUrl,
+            headers: {'Authorization': 'Bearer ' +jwt},
+            data: formData,
+
+            contentType: false,
+            //必须false才会避开jQuery对formdata的默认处理
+            processData: false,
+
+            success: function() {
+                alert("Success!");
+            },
+            error: function(XMLHttpRequest) {
+                //alert("AJAX error: " + XMLHttpRequest.status);
+            }
+        });
+    });
+
+
+</script>
+</body>
+
+</html>

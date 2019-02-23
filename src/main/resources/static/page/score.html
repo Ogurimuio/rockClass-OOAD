@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Score</title>
+
+    <!--js-->
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="../js/general.js"></script>
+    <script type="text/javascript" src="../js/score.js"></script>
+    <!--<script type="text/javascript" src="../js/test.js"></script>-->
+
+    <!--css-->
+    <link rel="stylesheet" type="text/css" href="../css/general.css">
+
+    <!--vue/element-->
+    <script src="https://cdn.bootcss.com/vue/2.5.18-beta.0/vue.js"></script>
+    <!-- 引入样式/组件库 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="aside">
+        <div class="header">
+            翻转课堂管理平台
+        </div>
+        <div class="logOut">
+            <div class="logOutBtn" id="logOutBtn">
+                退出系统
+            </div>
+        </div>
+        <div class="menu" id="menu">
+            <el-menu
+                    class="el-menu-vertical-demo"
+                    @open="handleOpen" @close="handleClose"
+                    background-color="#6699ff" text-color="#fff"
+                    active-text-color="#545c64">
+                <el-menu-item index="1" id="backBtn">
+                    <span slot="title">返回主页</span>
+                </el-menu-item>
+            </el-menu>
+            <el-menu
+                    default-active="4" class="el-menu-vertical-demo"
+                    @open="handleOpen" @close="handleClose"
+                    background-color="#8cb2ff" text-color="#fff"
+                    active-text-color="#545c64">
+                <el-menu-item index="2" id="importListBtn">
+                    <span slot="title">导入学生名单</span>
+                </el-menu-item>
+                <el-menu-item index="3" id="seminarBtn">
+                    <span slot="title">讨论课</span>
+                </el-menu-item>
+                <el-menu-item index="4" id="exportListBtn">
+                    <span slot="title">导出成绩</span>
+                </el-menu-item>
+            </el-menu>
+        </div>
+    </div>
+    <div class="main">
+        <div class="header" id="main-header">
+            查看成绩
+        </div>
+        <div class="searcher" id="searcher">
+            轮次：
+            <el-select v-model="value" placeholder="请选择">
+                <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                </el-option>
+            </el-select>
+            <el-button type="primary" round onclick="exportScore()">导出为Excel</el-button>
+        </div>
+        <div class="list">
+            <div class="list-table">
+                <table id="score-list">
+                    <tr>
+                        <th>小组号</th>
+                        <th>参与讨论课</th>
+                        <th>发言成绩</th>
+                        <th>提问成绩</th>
+                        <th>报告成绩</th>
+                        <th>本次总成绩</th>
+                        <th>总分</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function exportScore() {
+        alert("导出成功！");
+    }
+    var searcher = new Vue({
+        el: '#searcher',
+        data: {
+            options: [{
+                value: '选项1',
+                label: '1'
+            }, {
+                value: '选项2',
+                label: '2'
+            }, {
+                value: '选项3',
+                label: '3'
+            }, {
+                value: '选项4',
+                label: '4'
+            }, {
+                value: '选项5',
+                label: '5'
+            }],
+            value: ''
+        }
+    });
+    var menu = new Vue({
+        el: '#menu',
+        data: {
+        },
+        methods: {
+            handleOpen(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose(key, keyPath) {
+                console.log(key, keyPath);
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="../css/zhuye_teacher.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>找回密码</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.location.href='login_mobile.html';"><i class="el-icon-arrow-left"></i></div>
+        <div class="headerWord">找回密码</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <el-form model="formLabelAlign">
+            <el-form-item label="输入学号/教工号">
+                <el-input type="input"  v-model="formLabelAlign.account"></el-input>
+            </el-form-item>
+            <el-button size="big" type="primary" @click="sendIdCode">发送密码</el-button>
+        </el-form>
+    </div>
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return{
+                formLabelAlign: {
+                    account: null
+                },
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item ' + command);
+            },
+            sendIdCode() {
+                var account = this.formLabelAlign.account;
+                axios({
+                    method: 'get',
+                    url: `/user/password/${account}`
+                }).then(() => {
+                    alert("密码已发送至您的邮箱，请妥善保管！");
+                    window.location.href = 'login_mobile.html';
+                })
+            }
+        }
+    });
+
+</script>
+
+</body>
+</html>

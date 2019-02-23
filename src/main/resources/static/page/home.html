@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+
+    <!--js-->
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/home.js"></script>
+
+    <!--css-->
+    <link rel="stylesheet" type="text/css" href="../css/pc_general.css">
+
+    <!--vue/element-->
+    <script src="https://cdn.bootcss.com/vue/2.5.18-beta.0/vue.js"></script>
+    <!-- 引入样式/组件库 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="aside">
+        <div class="header">
+            翻转课堂管理平台
+        </div>
+        <div class="logOut">
+            <div class="logOutBtn" id="logOutBtn">
+                退出系统
+            </div>
+        </div>
+        <div class="menu" id="menu">
+            <el-menu
+                    default-active="1" class="el-menu-vertical-demo"
+                    @open="handleOpen" @close="handleClose"
+                    background-color="#8cb2ff" text-color="#fff"
+                    active-text-color="#545c64">
+                <el-menu-item index="1">
+                    <span slot="title">选择课程</span>
+                </el-menu-item>
+            </el-menu>
+        </div>
+    </div>
+    <div class="main">
+        <div class="header">
+            个人信息综合管理平台
+        </div>
+        <div class="list">
+            <div class="list-table">
+                <table id="course-list">
+                    <tr id="tip">
+                        <td colspan="2">
+                            当前暂无课程信息
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var menu = new Vue({
+        el: '#menu',
+        data: {
+        },
+        methods: {
+            handleOpen(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose(key, keyPath) {
+                console.log(key, keyPath);
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

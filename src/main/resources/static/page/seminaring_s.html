@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/seminaring.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+
+    <title>讨论课进行中</title>
+    <style>
+        .teamList{
+            /*margin-left: -10%;*/
+            margin-top: 30%;
+            width: 100%;
+            height:80%;
+            /*background:#c8dde8;*/
+            text-align: center;
+        }
+        .questionList{
+            position:fixed;
+            margin-right: 10%;
+            margin-top: 5%;
+            width: 20%;
+            height:50%;
+            text-align: center;
+        }
+        #score{
+            position:fixed;
+            margin-left: 30%;
+            margin-top: -35%;
+            font-weight: bold;
+            font-size: 40px;
+            width: 160px;
+            height: 160px;
+            text-align: center;
+        }
+        .button{
+            position:fixed;
+            bottom:0;
+            width:90%;
+            height:40%;
+            background-color:#ffffff;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">讨论课进行中</div>
+        </p>
+    </div>
+
+    <div class="container">
+
+
+
+        <div class="teamList">
+            <div  v-for="team in myResultData">
+                <div v-if="team.present===1">
+                    <p style="color: red">{{team.serial}}</p>
+                </div>
+                <div v-if="team.present===0">
+                    <p style="color: black">{{team.serial}}</p>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="button">
+
+            <div style="margin-top: 5%">
+                <el-button type="primary" @click="question">提问</el-button>
+            </div>
+        </div>
+
+
+
+    </div>
+
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                groupData:null,
+                input:0,
+                input2:0,
+                questionStu:{
+                    serial:"提问队列为空"
+                },
+                questionList:[],
+                tableData:[],
+                myResultData:[],
+                nowTeam:'',
+                now:'',
+                maxTeam:null,
+                signUpTeam:0,
+                flag:0,
+                myId:null,
+                myTeamId:null
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+
+            firstQuestion:function(item){
+                let jwt = localStorage.getItem('jwt');
+                var attendanceId=this.nowTeam.attendanceId
+                //var attendanceId = localStorage.getItem("clickAttendance");
+                axios.get(`/attendance/${attendanceId}/question`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+                    this.flag=1;
+                    let data = response.data;
+                    this.questionStu = data;
+                    console.log(this.questionStu);
+                    socket.send(this.questionStu.teamSerial);
+                });
+
+            },
+            nextQuestion:function(){
+                let jwt = localStorage.getItem('jwt');
+                var attendanceId=this.nowTeam.attendanceId
+
+                axios.get(`/attendance/${attendanceId}/question`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+                    let data = response.data;
+                    this.questionStu = data;
+                    console.log(this.questionStu);
+                    socket.send(this.questionStu.teamSerial);
+                });
+            },
+            saveGrade:function(){
+                let jwt = localStorage.getItem('jwt');
+
+                var seminarId=localStorage.getItem('clickSeminar');
+                let teamId=this.nowTeam.teamId
+                //let score=this.input;
+                axios.get(`/seminar/${seminarId}/team/${teamId}/seminarscore`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+                    let data = response.data;
+                    axios({
+                        method: 'put',
+                        url: ` /seminar/${seminarId}/team/${teamId}/seminarscore`,
+                        data: {
+                            "teamId":teamId,
+                            "preScore": data.preScore,
+                            "reportScore":data.reportScore,
+                            "questionScore":this.input2,
+                        },
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then(response => {
+                        this.input2=0
+                    });
+                })
+
+
+            },
+            saveQuestionGrade:function(){
+                let jwt = localStorage.getItem('jwt');
+
+                var seminarId=localStorage.getItem('clickSeminar');
+                let teamId=this.questionStu.teamId
+                //let score=this.input;
+                axios.get(`/seminar/${seminarId}/team/${teamId}/seminarscore`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+                    let data = response.data;
+                    axios({
+                        method: 'put',
+                        url: ` /seminar/${seminarId}/team/${teamId}/seminarscore`,
+                        data: {
+                            "teamId":teamId,
+                            "preScore": this.input2,
+                            "reportScore":data.reportScore,
+                            "questionScore": data.questionScore,
+                        },
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then(response => {
+                        this.input=0
+                    });
+                })
+
+
+            },
+            next:function() {
+                if(this.now===(this.signUpTeam-1))
+                {
+                    console.log("over")
+                    this.over();
+                }
+                else{
+                    let jwt = localStorage.getItem('jwt');
+                    let seminarId = localStorage.getItem("clickSeminar");
+                    let classId = localStorage.getItem("clickClass");
+                    let order=this.nowTeam.teamOrder+1
+                    var params = new URLSearchParams();
+                    params.append('order', order);
+
+                    axios({
+                        method: 'put',
+                        url: `/seminar/${seminarId}/class/${classId}/attendance`,
+                        data: params,
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then(response => {
+                        this.now=this.now+1;
+                        this.nowTeam=this.myResultData[this.now];
+                        this.flag=0
+                        socket.send(1);
+                        window.location.href="seminaring.html"
+
+                    });
+                }
+
+            },
+            question:function(){
+                let jwt = localStorage.getItem('jwt');
+                var seminarId = localStorage.getItem("clickSeminar");
+                var classId = localStorage.getItem("clickClass");
+                var params = new URLSearchParams();
+                var attendanceId=this.nowTeam.attendanceId
+                console.log(this.myTeamId)
+                console.log(this.myId)
+                params.append('myTeamId',this.myTeamId);
+                params.append('myId', this.myId);
+                axios({
+                    method: 'post',
+                    url: `/attendance/${attendanceId}/question`,
+                    data: params,
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then(response => {
+                    socket.send(2)
+                    //window.location.href="mySeminar.html"
+                });
+
+            }
+
+        },
+
+        mounted() {
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            let seminarId = localStorage.getItem("clickSeminar");
+            let classId = localStorage.getItem("clickClass");
+            axios.get(`/seminar/${seminarId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.maxTeam = data.maxTeam;
+                console.log(this.maxTeam);
+
+            });
+
+            axios.get(`/seminar/${seminarId}/class/${classId}/attendance`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+                this.myId=this.formLabelAlign.myId;
+                this.myTeamId=this.formLabelAlign.myTeamId
+                if(this.formLabelAlign.teamStatus===1)
+                {
+                    window.location.href="checkSignUp_s_ed.html"
+                }
+                let keys = Object.keys(data).filter(prop => /teamAttendance/.test(prop))
+                // let tabledata=[]
+                for (let key of keys) {
+                    this.tableData.push(data[key])
+                }
+                console.log(this.tableData)
+
+
+                let tableData = this.tableData
+                console.log(tableData)
+                var maxTeamCount = this.maxTeam
+
+                let resultData = []
+                for (let i = 1; i <= maxTeamCount; i++) {
+                    let teamObj = tableData.find(item => item.teamOrder === i)
+
+                    if (teamObj) {
+                        if (!teamObj.pptName) {
+                            resultData.push({
+                                ...teamObj,
+                                serial: teamObj.serial,
+                            })
+                        } else {
+                            resultData.push(teamObj)
+                        }
+                        this.signUpTeam=this.signUpTeam+1;
+                    } else {
+                        resultData.push({
+                            teamOrder: i,
+                            serial: '无报名'
+                            //baomingurl: '填上可报名要跳去的页面的链接'
+
+                        })
+                    }
+                }
+
+                console.log(this.signUpTeam)
+
+                this.myResultData=resultData
+                console.log(this.myResultData)
+
+                let count=0;
+                for(let n=0;n<this.maxTeam;n++)
+                {
+                    if(this.myResultData[n].present===1)
+                    {
+                        count=n;
+                        break;
+                    }
+                }
+
+                this.nowTeam=this.myResultData[count]
+                this.now=count;
+                console.log(this.nowTeam)
+                if(count===0){
+                    var params = new URLSearchParams();
+                    params.append('order', count);
+                    axios({
+                        method: 'put',
+                        url: `/seminar/${seminarId}/class/${classId}/attendance`,
+                        data: params,
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then(response => {
+                        this.myResultData[0].present=1;
+                    });
+                }
+            });
+            axios.get(` /attendance/${attendanceId}/questionlist`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.questionList = data;
+                console.log(this.questionList);
+                //window.location.href("seminaring.html");
+            });
+
+            axios.get(`/seminar/${seminarId}/class/${classId}/attendance`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                // this.myId = data.myId;
+                // this.myTeamId=data.myTeamId;
+
+
+            });
+
+
+        }
+
+    });
+</script>
+<script src="js/jquery-1.7.1.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    var socket=new WebSocket("ws://112.74.57.133:8080/websocket");
+    if(typeof(WebSocket) == "undefined") {
+        alert("您的浏览器不支持WebSocket");
+    }
+
+
+    socket.onmessage = function(msg) {
+        if (msg.data==1) {
+            window.location.href("seminaring_s.html");
+    }
+        else if (msg.data==2) {
+            //tiwenshuaxin
+        }
+        else if (msg.data===3) {
+            //jieshu
+            window.location.href("seminarInfo_panduan_s.html");
+        }
+        else{
+            //xianshisheitiwen
+
+            alert("请"+msg.data+"提问")
+
+        }
+    };
+</script>
+</html>

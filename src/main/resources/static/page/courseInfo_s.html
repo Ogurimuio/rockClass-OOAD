@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="../css/accountAndSet.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>课程信息</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_student.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar_s.html'">讨论课</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">课程信息</div>
+        </p>
+    </div>
+
+    <div class="container">
+
+        <div class="studentInfo" id="studentInfo">
+            <el-form model="formLabelAlign">
+
+                <el-form-item label="课程名">
+                    <el-input type="input" id="show-input" display v-model="formLabelAlign.name"></el-input>
+                </el-form-item>
+                <el-form-item label="课程要求">
+                    <el-input type="textarea" id="show-input" display v-model="formLabelAlign.intro"></el-input>
+                </el-form-item>
+                <el-form-item label="成绩计算规则">
+                </el-form-item>
+                <el-form-item label="展示">
+                    <el-input type="input" id="show-input" display v-model="formLabelAlign.presentationWeight"></el-input>
+                </el-form-item>
+                <el-form-item label="提问">
+                    <el-input type="input" id="show-input" display v-model="formLabelAlign.questionWeight"></el-input>
+                </el-form-item>
+                <el-form-item label="报告">
+                    <el-input type="input" id="show-input" display v-model="formLabelAlign.reportWeight"></el-input>
+                </el-form-item>
+
+
+                <el-form-item label="组队开始时间">
+                    <el-input type="input" id="show-input" display v-model="formLabelAlign.startTeamTime"></el-input>
+                </el-form-item>
+                <el-form-item label="组队截止时间">
+                    <el-col :span="20">
+                        <el-input type="input" id="show-input" display v-model="formLabelAlign.endTeamTime"></el-input>
+                    </el-col>
+                </el-form-item>
+                <el-form-item >
+
+                    <el-button type="text" onclick="window.location.href='groupRequire.html'">组队要求 ></el-button>
+
+                </el-form-item>
+
+            </el-form>
+
+        </div>
+        </br></br></br>
+
+
+    </div>
+</div>
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign: null
+            }
+        },
+        methods: {
+            handleCommand(command) {
+
+                this.$message('click on item' + command);
+            },
+
+        },
+        mounted() {
+            // console.log(this.formLabelAlign=response2);
+            // console.log(this.formLabelAlign);
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            let courseId=localStorage.getItem('clickCourse');
+            axios.get(`/course/${courseId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+
+            })
+
+        },
+    });
+
+
+</script>
+</body>
+
+</html>

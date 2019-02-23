@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.TeamStudentMapper" >
+    <resultMap id="BaseResultMap" type="com.example.rockclass.entity.TeamStudent" >
+
+        <association column="team_id" property="team" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Team"
+                     select="com.example.rockclass.mapper.TeamMapper.selectByPrimaryKey"/>
+        <association column="student_id" property="student" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Student"
+                     select="com.example.rockclass.mapper.StudentMapper.selectByStudentId"/>
+    </resultMap>
+
+    <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from team_student
+    where team_id = #{teamId,jdbcType=BIGINT}
+      and student_id = #{studentId,jdbcType=BIGINT}
+  </delete>
+
+    <delete id="deleteByTeamId" parameterType="java.lang.Long" >
+    delete from team_student
+    where team_id = #{teamId,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.example.rockclass.entity.TeamStudent" >
+    insert into team_student (team_id,student_id)
+    values (#{team.id,jdbcType=BIGINT},#{student.id,jdbcType=BIGINT})
+  </insert>
+    <select id="selectByStudentId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select team_id,student_id
+    from team_student
+    where  student_id = #{studentId,jdbcType=BIGINT}
+  </select>
+    <select id="selectByTeamId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select team_id,student_id
+    from team_student
+    where  team_id = #{teamId,jdbcType=BIGINT}
+  </select>
+    <select id="selectAll" resultMap="BaseResultMap" >
+    select  team_id,student_id
+    from team_student
+  </select>
+
+
+</mapper>

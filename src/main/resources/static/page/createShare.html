@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="../css/accountAndSet.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+
+    <title>新增共享</title>
+</head>
+
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">新增共享</div>
+        </p>
+    </div>
+    <div class="container">
+        <el-form>
+
+                <el-form-item label="新增共享-共享分组">
+
+            </el-form-item>
+            <el-form-item label="共享对象">
+                <el-select v-model="courseId" placeholder="请选择">
+                    <el-option
+                            v-for="item in course"
+                            :label="item.courseName"
+                            :value="item.courseId">
+                        {{item.courseName}}  {{item.teacherName}}
+                    </el-option>
+                </el-select>
+            </el-form-item>
+
+
+        </el-form>
+
+    </div>
+    <br /><br />
+    <br /><br /><br /><br />
+    <div class="footer_white">
+        <el-button type="primary" @click="add">确认共享</el-button>
+
+    </div>
+
+</div>
+
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return{
+                formLabelAlign:null,
+                course:null,
+                value: '',
+                courseId:'',
+
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item ' + command);
+            },
+
+            add:function() {
+                let jwt = localStorage.getItem('jwt');
+                var courseId=localStorage.getItem("clickCourse");
+                console.log(this.courseId)
+                var params = new URLSearchParams();
+                params.append('subCourseId', this.courseId);
+                axios({
+                    method:"post",
+                    url:`/course/${courseId}/teamsharerequest`,
+                    data:params,
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+                   window.location.href="modifyShare.html"
+
+                })
+            },
+        },
+        mounted(){
+
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            axios.get(`/course/allcourse`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.course = data;
+                console.log(this.course);
+            });
+        },
+
+
+    });
+</script>
+
+</body>
+
+</html>

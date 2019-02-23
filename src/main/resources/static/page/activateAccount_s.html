@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="../css/zhuye_teacher.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>激活账号</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.location.href='login_mobile.html';"><i class="el-icon-arrow-left"></i></div>
+        <div class="headerWord">密码设置</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <el-form model="formLabelAlign">
+            <el-form-item label="输入密码">
+                <el-input type="input"  v-model="formLabelAlign.pwd1"></el-input>
+            </el-form-item>
+            <el-form-item label="确认密码">
+                <el-input type="input"  v-model="formLabelAlign.pwd2"></el-input>
+            </el-form-item>
+            <el-form-item label="输入邮箱">
+                <el-input type="input"  v-model="formLabelAlign.email"></el-input>
+            </el-form-item>
+        </el-form>
+    </div>
+    <br /><br />
+    <div class="footer_white">
+        <el-button size="big" type="primary" @click="activate" >确认提交</el-button>
+    </div>
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return{
+                formLabelAlign: {
+                    pwd1: null,
+                    pwd2: null,
+                    email: null
+                },
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item ' + command);
+            },
+            activate() {
+                var pwd1 = this.formLabelAlign.pwd1;
+                var pwd2 = this.formLabelAlign.pwd2;
+                var email = this.formLabelAlign.email;
+                if (pwd1 == pwd2) {
+                    let jwt = localStorage.getItem('jwt');
+                    var params = new URLSearchParams();
+                    params.append("password", pwd1);
+                    params.append("email", email);
+
+                    axios({
+                        method: 'put',
+                        url: `/student/active`,
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        },
+                        data: params
+                    }).then(() => {
+                        alert("激活成功！");
+                        window.location.href = 'zhuye_student.html';
+                    })
+                } else {
+                    alert("两次输入的密码不一致，请重新输入！");
+                }
+            }
+        },
+
+
+    });
+
+</script>
+
+</body>
+</html>

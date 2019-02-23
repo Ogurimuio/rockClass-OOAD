@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>查看成绩</title>
+
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">查看成绩</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <el-collapse accordion>
+            <el-collapse-item :title="item.roundSerial" v-for="(item,i) in formLabelAlign">
+
+                    <el-collapse accordion>
+                        <el-collapse-item :title="team.teamName" v-for="team in item.allTeamRoundScore">
+                            <div v-for="semi in team.seminarScores">
+                            <p style="text-align: center;color: #6699ff">
+                                {{semi.seminarName}}
+                            </p>
+                             <p style="text-align: center">
+                                    展示：{{semi.preScore}}    提问：{{semi.questionScore}}   报告：{{semi.reportScore}}
+                                 总成绩：{{semi.totalScore}}
+                              </p>
+                            </div>
+                            <div>
+                                <p style="text-align: center;color: #6699ff">
+                                    本轮成绩
+                                </p>
+                                <p style="text-align: center">
+                                    展示：{{team.roundScore.preScore}}
+                                    提问：{{team.roundScore.questionScore}}
+                                    报告：{{team.roundScore.reportScore}}
+                                    总成绩：{{team.roundScore.totalScore}}
+                                </p>
+                            </div>
+                        </el-collapse-item>
+                    </el-collapse>
+
+            </el-collapse-item>
+        </el-collapse>
+
+        <br/><br/>
+    </div>
+        <div class="footer_white">
+            <el-button type="primary" @click="back"> 确  认 <i class="el-icon-circle-check-outline el-icon--right"></i></el-button>
+            <el-button type="primary" @click="modify"> 修  改 <i class="el-icon-edit-outline el-icon--right"></i></el-button>
+
+        </div>
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign:null,
+
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+            back:function(){
+                window.location.href="myCourse.html";
+            },
+            toSeminar:function(){
+                window.location.href="modifyCourseGrade.html"
+            },
+
+        },
+        mounted() {
+
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            let courseId = localStorage.getItem("clickCourse");
+            axios.get(`/course/${courseId}/allscore`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+                console.log(this.formLabelAlign)
+            })
+
+
+        }
+
+    });
+</script>
+</html>

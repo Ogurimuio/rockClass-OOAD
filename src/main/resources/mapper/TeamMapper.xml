@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.TeamMapper" >
+  <resultMap id="BaseResultMap" type="com.example.rockclass.entity.Team" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="team_name" property="teamName" jdbcType="VARCHAR" />
+    <result column="team_serial" property="teamSerial" jdbcType="TINYINT" />
+    <result column="klass_serial" property="klassSerial" jdbcType="TINYINT" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <association column="klass_id" property="klass" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Klass"
+                 select="com.example.rockclass.mapper.KlassMapper.selectByPrimaryKey"/>
+    <association column="course_id" property="course" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Course"
+                 select="com.example.rockclass.mapper.CourseMapper.selectByPrimaryKey"/>
+    <association column="leader_id" property="leader" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Student"
+                 select="com.example.rockclass.mapper.StudentMapper.selectByStudentId"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from team
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.example.rockclass.entity.Team" useGeneratedKeys="true" keyProperty="id" >
+    insert into team (klass_id, course_id,
+      leader_id, team_name, team_serial, klass_serial,
+      status)
+    values ( #{klass.id,jdbcType=BIGINT}, #{course.id,jdbcType=BIGINT},
+      #{leader.id,jdbcType=BIGINT}, #{teamName,jdbcType=VARCHAR}, #{teamSerial,jdbcType=TINYINT},#{klassSerial,jdbcType=TINYINT},
+      #{status,jdbcType=TINYINT})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.rockclass.entity.Team" >
+    update team
+    set klass_id = #{klass.id,jdbcType=BIGINT},
+      course_id = #{course.id,jdbcType=BIGINT},
+      leader_id = #{leader.id,jdbcType=BIGINT},
+      team_name = #{teamName,jdbcType=VARCHAR},
+      team_serial = #{teamSerial,jdbcType=TINYINT},
+       klass_serial = #{klassSerial,jdbcType=TINYINT},
+      status = #{status,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByKlassId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, klass_id, course_id, leader_id, team_name, team_serial,klass_serial,status
+    from team
+    where klass_id = #{klassId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, klass_id, course_id, leader_id, team_name, team_serial,klass_serial, status
+    from team
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectByCourseId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, klass_id, course_id, leader_id, team_name, team_serial,klass_serial,status
+    from team
+    where course_id = #{courseId,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, klass_id, course_id, leader_id, team_name, team_serial,klass_serial,status
+    from team
+  </select>
+</mapper>

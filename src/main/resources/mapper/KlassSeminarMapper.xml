@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.KlassSeminarMapper" >
+  <resultMap id="BaseResultMap" type="com.example.rockclass.entity.KlassSeminar" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="report_ddl" property="reportDdl" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <association column="klass_id" property="klass" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Klass"
+                 select="com.example.rockclass.mapper.KlassMapper.selectByPrimaryKey"/>
+    <association column="seminar_id" property="seminar" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Seminar"
+                 select="com.example.rockclass.mapper.SeminarMapper.selectByPrimaryKey"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from klass_seminar
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.example.rockclass.entity.KlassSeminar" useGeneratedKeys="true" keyProperty="id">
+    insert into klass_seminar ( klass_id, seminar_id,
+      report_ddl, status)
+    values ( #{klass.id,jdbcType=BIGINT}, #{seminar.id,jdbcType=BIGINT},
+      #{reportDdl,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.rockclass.entity.KlassSeminar" >
+    update klass_seminar
+    set klass_id = #{klass.id,jdbcType=BIGINT},
+      seminar_id = #{seminar.id,jdbcType=BIGINT},
+      report_ddl = #{reportDdl,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, klass_id, seminar_id, report_ddl, status
+    from klass_seminar
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByKlassIdAndSeminarId" resultMap="BaseResultMap" parameterType="map" >
+    select id, klass_id, seminar_id, report_ddl, status
+    from klass_seminar
+    where klass_id = #{klassId,jdbcType=BIGINT} and seminar_id= #{seminarId,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, klass_id, seminar_id, report_ddl, status
+    from klass_seminar
+  </select>
+</mapper>

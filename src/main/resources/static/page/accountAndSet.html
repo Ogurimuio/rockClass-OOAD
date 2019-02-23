@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="../css/accountAndSet.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>学生主页</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">我的主页</div>
+        </p>
+    </div>
+
+    <div class="container">
+
+        <div class="studentInfo" id="studentInfo">
+            <el-form model="formLabelAlign">
+
+                <el-form-item label="姓名">
+                    <el-input v-model="formLabelAlign.name" readonly type="text">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="教工号">
+                    <el-input v-model="formLabelAlign.account" readonly type="text">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="邮箱">
+                    <el-input v-model="formLabelAlign.email" readonly type="text">
+                    </el-input>
+                    <el-button type="text" onclick="window.location.href='modifyEmail.html'">修改邮箱</el-button>
+
+                </el-form-item>
+
+                <el-form-item label="账户密码">
+                    <el-button type="primary" id="modify" size='mini' onclick="window.location.href='modifyPassword.html'">修改</el-button>
+                </el-form-item>
+
+            </el-form>
+
+        </div>
+        </br></br></br>
+        <div class="footer_white">
+            <el-button type="danger" icon="el-icon-back" @click="out">退出登录</el-button>
+        </div>
+
+    </div>
+</div>
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign: {
+                    id: 0,
+                    account: 0,
+                    password: 0,
+                    name: "",
+                    email: "",
+                }
+            }
+        },
+        methods: {
+            handleCommand(command) {
+
+                this.$message('click on item' + command);
+            },
+            out:function(){
+                localStorage.setItem("jwt",null)
+                window.location.href='../login_mobile.html'
+            }
+        },
+        mounted() {
+            // console.log(this.formLabelAlign=response2);
+            // console.log(this.formLabelAlign);
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+
+            axios.get(`/user/information`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+
+            })
+                .catch(function (error) {
+                    console.log(error);
+                    alert(error);
+                    console.log(this.formLabelAlign);
+                });
+        },
+    });
+
+
+</script>
+</body>
+
+</html>

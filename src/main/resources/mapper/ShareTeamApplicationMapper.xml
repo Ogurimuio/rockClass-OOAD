@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.ShareTeamApplicationMapper" >
+  <resultMap id="BaseResultMap" type="com.example.rockclass.entity.ShareTeamApplication" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <association column="main_course_id" property="mainCourse" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Course"
+                 select="com.example.rockclass.mapper.CourseMapper.selectByPrimaryKey"/>
+    <association column="sub_course_id" property="subCourse" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Course"
+                 select="com.example.rockclass.mapper.CourseMapper.selectByPrimaryKey"/>
+    <association column="sub_course_teacher_id" property="subCourseTeacher" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Teacher"
+                 select="com.example.rockclass.mapper.TeacherMapper.selectByTeacherId"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from share_team_application
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.example.rockclass.entity.ShareTeamApplication" useGeneratedKeys="true" keyProperty="id">
+    insert into share_team_application (main_course_id, sub_course_id,
+      sub_course_teacher_id, status)
+    values (#{mainCourse.id,jdbcType=BIGINT}, #{subCourse.id,jdbcType=BIGINT},
+      #{subCourseTeacher.id,jdbcType=BIGINT}, #{status,jdbcType=TINYINT})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.rockclass.entity.ShareTeamApplication" >
+    update share_team_application
+    set main_course_id = #{mainCourse.id,jdbcType=BIGINT},
+      sub_course_id = #{subCourse.id,jdbcType=BIGINT},
+      sub_course_teacher_id = #{subCourseTeacher.id,jdbcType=BIGINT},
+      status = #{status,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, main_course_id, sub_course_id, sub_course_teacher_id, status
+    from share_team_application
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectByMainCourseIdAndStatus" resultMap="BaseResultMap" parameterType="map" >
+    select id, main_course_id, sub_course_id, sub_course_teacher_id, status
+    from share_team_application
+    where main_course_id = #{mainCourseId,jdbcType=BIGINT} and status = #{status,jdbcType=TINYINT}
+  </select>
+  <select id="selectByMainCourseId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, main_course_id, sub_course_id, sub_course_teacher_id, status
+    from share_team_application
+    where main_course_id = #{mainCourseId,jdbcType=BIGINT}
+  </select>
+  <select id="selectBySubCourseId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, main_course_id, sub_course_id, sub_course_teacher_id, status
+    from share_team_application
+    where sub_course_id = #{subCourseId,jdbcType=BIGINT}
+  </select>
+  <select id="selectBySubCourseTeacherIdAndStatus" resultMap="BaseResultMap" parameterType="map" >
+    select id, main_course_id, sub_course_id, sub_course_teacher_id, status
+    from share_team_application
+    where sub_course_teacher_id = #{subCourseTeacherId,jdbcType=BIGINT}
+          and status = #{status,jdbcType=TINYINT}
+  </select>
+  <select id="selectBySubCourseIdAndStatus" resultMap="BaseResultMap" parameterType="map" >
+    select id, main_course_id, sub_course_id, sub_course_teacher_id, status
+    from share_team_application
+    where sub_course_id = #{subCourseId,jdbcType=BIGINT}
+          and status = #{status,jdbcType=TINYINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, main_course_id, sub_course_id, sub_course_teacher_id, status
+    from share_team_application
+  </select>
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.StudentMapper" >
+  <resultMap id="BaseResultMap" type="com.example.rockclass.entity.Student" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="account" property="account" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="is_active" property="isActive" jdbcType="TINYINT" />
+    <result column="student_name" property="studentName" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByAccount" parameterType="java.lang.String" >
+    delete from student
+    where account = #{account,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.example.rockclass.entity.Student" >
+    insert into student (account, password,
+      is_active, student_name, email
+      )
+    values (#{account,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+      #{isActive,jdbcType=TINYINT}, #{studentName,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByAccount" parameterType="com.example.rockclass.entity.Student" >
+    update student
+    set account = #{account,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      is_active = #{isActive,jdbcType=TINYINT},
+      student_name = #{studentName,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR}
+    where account = #{account,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByAccount" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select id, account, password, is_active, student_name, email
+    from student
+    where account = #{account,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByStudentId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, account, password, is_active, student_name, email
+    from student
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, account, password, is_active, student_name, email
+    from student
+  </select>
+</mapper>

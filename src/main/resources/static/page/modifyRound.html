@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <script src=" https://js.cybozu.cn/momentjs/2.22.1/moment-with-locales.min.js"></script>
+    <script src="https://cdn.bootcss.com/moment.js/2.22.2/moment.min.js"></script>
+    <title>第一轮</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">轮次设置</div>
+        </p>
+    </div>
+    <div class="container">
+            <label>讨论课：</label>
+        <div  v-for="thing in seminar">
+            <p style="text-align: center">{{thing.topic}}</p>
+            <div class="line">
+            </div>
+        </div>
+        <div style="margin: 10px 0;"></div>
+        <el-form model="formLabelAlign">
+            <label>成绩设置：</label>
+            <div style="margin: 10px 0;"></div>
+            <el-form-item label="展示：">
+                <el-select v-model="formLabelAlign.calculatePreType" placeholder="最高分">
+                    <el-option label="最高分" value="0"></el-option>
+                    <el-option label="平均分" value="1"></el-option>
+                    <el-option label="最低分" value="2"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="提问：">
+                <el-select v-model="formLabelAlign.calculateQueType" placeholder="最高分">
+                    <el-option label="最高分" value="0"></el-option>
+                    <el-option label="平均分" value="1"></el-option>
+                    <el-option label="最低分" value="2"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="报告：">
+                <el-select v-model="formLabelAlign.calculateRepType" placeholder="最高分">
+                    <el-option label="最高分" value="0"></el-option>
+                    <el-option label="平均分" value="1"></el-option>
+                    <el-option label="最低分" value="2"></el-option>
+                </el-select>
+            </el-form-item>
+        </el-form>
+        <el-form>
+            <el-form-item label="本轮讨论课报名次数："></el-form-item>
+            <div  v-for="item in formLabelAlign.classRound">
+                <table style="display: inline-block;" >{{item.classSerial}}班</table>
+                <el-select  v-model="item.enrollNum" placeholder="1(默认)">
+                <el-option label="1(默认)" value="1"></el-option>
+                <el-option label="2" value="2"></el-option>
+            </el-select>
+            </div>
+        </el-form>
+    </div>
+    <div class="footer_white">
+        <el-button type="primary" @click="save">保存</el-button>
+    </div>
+</div>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign:null,
+
+                // calculatePreType:null,
+                // classRound: null,
+                seminar:null,
+
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+            save: function () {
+                let jwt = localStorage.getItem('jwt');
+                let roundId = localStorage.getItem("clickRound");
+                console.log(this.formLabelAlign);
+                // let courseId = localStorage.getItem("clickCourse");
+                // console.log(this.klass);
+                axios({
+                    method: 'put',
+                    url: `/round/${roundId}`,
+                    data: {
+                        calculatePreType: this.formLabelAlign.calculatePreType,
+                        calculateQueType: this.formLabelAlign.calculateQueType,
+                        calculateRepType: this.formLabelAlign.calculateRepType,
+                        classRound:[{id:this.formLabelAlign.id,
+                            enrollNum:this.enrollNum,
+                            classSerial:this.formLabelAlign.classSerial}]
+                    },
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then(response => {
+                    alert("成功");
+                })
+            }
+        },
+        mounted() {
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            let roundId = localStorage.getItem("clickRound");
+            axios.get(`/round/${roundId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+            });
+            axios.get(`/round/${roundId}/seminar`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.seminar = data;
+                console.log(this.seminar);
+            });
+
+            // let roundId2 = localStorage.getItem("clickRound");
+            // axios.get(`/round/${roundId2}`, {
+            //     headers: {
+            //         'Authorization': 'Bearer ' + jwt,
+            //     }
+            // }).then((response) => {
+            //     let data = response.data;
+            //     this.klass = data;
+            //     console.log(this.klass);
+            // });
+
+        }
+    })
+</script>
+</body>
+</html>

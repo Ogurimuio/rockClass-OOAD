@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <script src="https://cdn.bootcss.com/json2/20160511/json2.min.js"></script>
+
+    <title>查看组队</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.location.href='myCourse_s.html'"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_student.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar_s.html'">讨论课</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">查看组队</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <div style="text-align: center;color: #6699ff">
+            <p>{{formLabelAlign.name}}</p>
+        </div>
+        <p><div class="line"></div></p>
+        <div style="text-align: center;">
+            <p>组长：{{formLabelAlign.leader.account}}   {{formLabelAlign.leader.name}}</p>
+        </div>
+        <div style="text-align: center;" v-for="member in members">
+            <p>组员：{{member.account}}   {{member.name}}
+            <div v-if="me.id===formLabelAlign.leader.id">
+            <el-button type="text" @click="move(member.id)" size="mini">移除</el-button>
+        </div>
+            </p>
+        </div>
+
+        <div v-if="formLabelAlign.valid===0">
+            <p style="color: red;text-align: center">不合法</p>
+        </div>
+
+        <div v-if="me.id===formLabelAlign.leader.id">
+            <el-collapse accordion>
+                <el-collapse-item title="未组队学生">
+                <div style="text-align: center;margin-top: 4%">
+                    <el-checkbox-group v-model="checkList">
+                        <el-checkbox v-for="stu in noTeam" :label="stu.id">{{stu.account}}  {{stu.name}}</el-checkbox>
+                    </el-checkbox-group>
+                </div>
+                <div class="line"></div>
+                </el-collapse-item>
+            </el-collapse>
+        </div>
+        <!--<div v-for="item in formLabelAlign">-->
+        <!--<p>{{item.name}}</p>-->
+        <!--</div>-->
+    </div>
+    <br/><br/><br/><br/><br/><br/>
+    <div class="footer_white">
+        <div v-if="me.id===formLabelAlign.leader.id">
+            <el-button type="danger" @click="quit">解散小组</el-button>
+            <el-button type="primary" @click="add">添加</el-button>
+            <el-button type="primary" @click="save">保存</el-button>
+        </div>
+        <div v-if="me.id!=formLabelAlign.leader.id">
+        <el-button type="danger" @click="quit">退出小组</el-button>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign:null,
+                members:null,
+                me:null,
+                noTeam:null,
+                checkList:[],
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+            open:function() {
+
+                this.$prompt('请输入申请理由', '提示', {
+                    confirmButtonText: '提交',
+                    cancelButtonText: '取消',
+                }).then(({ value }) => {
+                    let jwt = localStorage.getItem('jwt');
+                    var courseId=localStorage.getItem('clickCourse');
+                    var classId=this.formLabelAlign.classId;
+                    var teamId=this.formLabelAlign.teamId
+                    var leaderId=this.formLabelAlign.leader.id;
+                    axios({
+                        method: 'post',
+                        url: `/team/${teamId}/teamvalidrequest`,
+                        data: {
+                            "requestType": "teamValid",
+                            "courseId":courseId,
+                            "classId": classId,
+                            "teamId": teamId ,
+                            "learderId": leaderId,
+                            "reason": value
+                        },
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then(response => {
+                        window.location.href="myTeam.html";
+                        // window.location.href="myTeamInfo_panduan.html";
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '取消输入'
+                    });
+                });
+            },
+            quit:function(){
+                let jwt = localStorage.getItem('jwt');
+                // axios.get(`/user/information`, {
+                //     headers: {
+                //         'Authorization': 'Bearer ' + jwt,
+                //     }
+                // }).then((response) => {
+                //     let data = response.data;
+                //     this.me = data;
+                //     console.log(this.me.id)
+                //
+                // });
+                var leaderId=this.formLabelAlign.leader.id
+                var myId=this.me.id
+
+
+                if(this.me.id==this.formLabelAlign.leader.id)
+                {
+                    var teamId=localStorage.getItem("myTeamId")
+                    var params1 = new URLSearchParams();
+                    params1.append('id',teamId);
+                    axios({
+                        method: 'delete',
+                        url: `/team/${teamId}`,
+                        data: params1,
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then(response => {
+                        window.location.href="myTeamInfo_panduan.html";
+                    });
+                }
+                else{
+
+                    var teamId=localStorage.getItem("myTeamId")
+                    var params = new URLSearchParams();
+                    params.append('id',this.me.id);
+                    axios({
+                        method: 'put',
+                        url: ` /team/${teamId}/remove`,
+                        data:params,
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then(response => {
+                        window.location.href="myTeamInfo_panduan.html";
+                    });
+
+                }
+            },
+            move:function(memberId){
+                var memberId=memberId
+                var params = new URLSearchParams();
+                params.append('id',memberId);
+                let jwt = localStorage.getItem('jwt');
+                var teamId=localStorage.getItem("myTeamId")
+                console.log(memberId)
+                axios({
+                    method: 'put',
+                    url: ` /team/${teamId}/remove`,
+                    data:params,
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then(response => {
+                    var teamId=this.formLabelAlign.teamId
+                    axios({
+                        method: 'get',
+                        url: `/team/${teamId}/approve`,
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then(response1 => {
+                        var valid=response1.data
+                        console.log(valid.isValid)
+
+                        if(valid.isValid===1){
+                            console.log("有效")
+                            window.location.href="myTeam.html";
+                        }
+                        else if(valid.isValid===0){
+                            console.log("无效")
+                            window.location.href="myTeam.html"
+                            //this.open()
+                        }
+                    });
+                });
+            },
+            add:function(){
+                let jwt = localStorage.getItem('jwt');
+                var teamId=localStorage.getItem("myTeamId")
+                for(let i=0;i<this.checkList.length;i++)
+                {
+                    var params = new URLSearchParams();
+                    params.append('id',this.checkList[i]);
+                    axios({
+                        method: 'put',
+                        url: `/team/${teamId}/add`,
+                        data:params,
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then(response => {
+
+                            var teamId=this.formLabelAlign.teamId
+                            axios({
+                                method: 'get',
+                                url: `/team/${teamId}/approve`,
+                                headers: {
+                                    'Authorization': 'Bearer ' + jwt,
+                                }
+                            }).then(response1 => {
+                                var valid=response1.data
+                                console.log(valid.isValid)
+
+                                if(valid.isValid===1){
+                                    console.log("有效")
+                                    window.location.href="myTeam.html";
+                                }
+                                else if(valid.isValid===0){
+                                    console.log("无效")
+                                    window.location.href="myTeam.html"
+                                    //this.open()
+                                }
+                            });
+
+
+                    });
+                }
+
+            },
+            save:function(){
+                window.location.href="myTeamInfo_inTeam.html"
+            }
+
+        },
+        mounted() {
+            // console.log(this.formLabelAlign=response2);
+            // console.log(this.formLabelAlign);
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            let courseId=localStorage.getItem('clickCourse');
+            axios.get(`/course/${courseId}/myTeam`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+                this.members=data.members;
+                let teamId=data.teamId;
+                localStorage.setItem('myTeamId',teamId);
+            });
+            axios.get(`/course/${courseId}/noTeam`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.noTeam = data;
+
+            });
+            axios.get(`/user/information`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.me = data;
+                console.log(this.me.id)
+
+            });
+
+        }
+
+    });
+</script>
+</html>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.KlassStudentMapper" >
+  <resultMap id="BaseResultMap" type="com.example.rockclass.entity.KlassStudent" >
+    <association column="klass_id" property="klass" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Klass"
+                 select="com.example.rockclass.mapper.KlassMapper.selectByPrimaryKey"/>
+    <association column="student_id" property="student" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Student"
+                 select="com.example.rockclass.mapper.StudentMapper.selectByStudentId"/>
+    <association column="course_id" property="course" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Course"
+                 select="com.example.rockclass.mapper.CourseMapper.selectByPrimaryKey"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from klass_student
+    where klass_id = #{klassId,jdbcType=BIGINT}
+      and student_id = #{studentId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByKlassId" parameterType="java.lang.Long" >
+    delete from klass_student
+    where klass_id = #{klassId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.example.rockclass.entity.KlassStudent" >
+    insert into klass_student (klass_id, student_id, course_id)
+    values ( #{klass.id,jdbcType=BIGINT}, #{student.id,jdbcType=BIGINT}, #{course.id,jdbcType=BIGINT})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.rockclass.entity.KlassStudent" >
+    update klass_student
+    set course_id = #{course.id,jdbcType=BIGINT},
+    where klass_id = #{klassId,jdbcType=BIGINT}
+      and student_id = #{studentId,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="map" >
+    select klass_id, student_id, course_id
+    from klass_student
+    where klass_id = #{klassId,jdbcType=BIGINT}
+      and student_id = #{studentId,jdbcType=BIGINT}
+  </select>
+  <select id="selectByStudentId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select klass_id, student_id, course_id
+    from klass_student
+    where  student_id = #{studentId,jdbcType=BIGINT}
+  </select>
+  <select id="selectByKlassId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select klass_id, student_id, course_id
+    from klass_student
+    where  klass_id = #{klassId,jdbcType=BIGINT}
+  </select>
+  <select id="selectByCourseId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select klass_id, student_id, course_id
+    from klass_student
+    where  course_id = #{courseId,jdbcType=BIGINT}
+  </select>
+  <select id="selectByCourseIdAndStudentId" resultMap="BaseResultMap" parameterType="map" >
+    select klass_id, student_id, course_id
+    from klass_student
+    where  course_id = #{courseId,jdbcType=BIGINT}
+      and student_id = #{studentId,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select klass_id, student_id, course_id
+    from klass_student
+  </select>
+</mapper>

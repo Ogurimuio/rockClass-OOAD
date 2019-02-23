@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <script src=" https://js.cybozu.cn/momentjs/2.22.1/moment-with-locales.min.js"></script>
+        <script src="https://cdn.bootcss.com/moment.js/2.22.2/moment.min.js"></script>
+
+    <title>我的共享</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">我的共享</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <el-form model="formLabelAlign">
+
+            <el-form-item label="主题">
+                <el-input type="text"  v-model="seminar.seminarName"></el-input>
+            </el-form-item>
+            <el-form-item label="课次序号">
+                <el-input type="text"  v-model="seminar.seminarSerial"></el-input>
+            </el-form-item>
+            <el-form-item label="要求">
+                <el-input type="textarea" autosize v-model="seminar.introduction"></el-input>
+            </el-form-item>
+            <el-form-item label="报名开始时间">
+                <el-date-picker
+                        v-model="seminar.enrollStartTime"
+                        type="date"
+                        placeholder="选择日期">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="报名结束时间">
+                <el-date-picker
+                        v-model="seminar.enrollEndTime"
+                        type="date"
+                        placeholder="选择日期">
+                </el-date-picker>
+            </el-form-item>
+            <el-button type="text">所属round </el-button>
+            <el-select v-model="value" placeholder="请选择">
+                <el-option v-for="item in rounds" :label="item.order" :value="item.id">
+                </el-option>
+            </el-select>
+            <el-form-item label="报名小组数">
+                <el-input-number v-model="seminar.maxTeam" @change="handleChange" :min="0" :max="10"></el-input-number>
+            </el-form-item>
+
+        </el-form>
+    </div>
+    <div class="footer_white">
+        <el-button type="primary" @click="save">保存</el-button>
+    </div>
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                seminar: null,
+                open: '',
+                rounds: [],
+                value:'',
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+            handleChange(value) {
+                //console.log(value);
+            },
+            save: function () {
+                let jwt = localStorage.getItem('jwt');
+                var seminarId = localStorage.getItem("clickSeminar");
+                var courseId = localStorage.getItem("clickCourse");
+                console.log(this.seminar)
+                var startTime=moment(this.seminar.enrollStartTime).format("YYYY-MM-DDThh:mm:ss")
+                var endTime=moment(this.seminar.enrollEndTime).format("YYYY-MM-DDThh:mm:ss")
+                console.log(startTime)
+                console.log(endTime)
+                axios({
+                    method: 'put',
+                    url: `/seminar/${seminarId}`,
+                    data: {
+                        "seminarId":seminarId,
+                        "maxTeam":this.seminar.maxTeam,
+                        "enrollStartTime": startTime,
+                        "enrollEndTime": endTime,
+                        "seminarSerial": this.seminar.seminarSerial,
+                        "courseId": courseId,
+                        "isVisible":this.seminar.isVisible,
+                        "roundSerial": this.value,
+                        "introduction": this.seminar.introduction,
+                        "seminarName": this.seminar.seminarName,
+                    },
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then(response => {
+                    alert("成功");
+                });
+
+
+        },
+
+
+    },
+        mounted() {
+            // console.log(this.formLabelAlign=response2);
+            // console.log(this.formLabelAlign);
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            var courseId = localStorage.getItem("clickCourse");
+            var seminarId = localStorage.getItem("clickSeminar");
+        axios.get(`/seminar/${seminarId}`, {
+            headers: {
+                'Authorization': 'Bearer ' + jwt,
+            }
+        }).then((response) => {
+            this.seminar = response.data
+            console.log(this.seminar)
+            this.value=this.seminar.order
+        });
+        axios.get(`/course/${courseId}/round`, {
+            headers: {
+                'Authorization': 'Bearer ' + jwt,
+            }
+        }).then((response) => {
+            this.rounds = response.data
+            console.log(this.rounds)
+        });
+        }
+
+    });
+</script>
+</html>

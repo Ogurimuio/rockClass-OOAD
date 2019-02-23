@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>查看报名情况</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">查看报名情况</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <template style="text-align: center">
+            <el-table
+                    :data="myResultData"
+                    @cell-click="handleCellClick"
+                    stripe
+                    style="width: 100%;margin-left: 20%"
+                    :default-sort = "{prop: 'teamOrder', order: 'ascending'}"
+            >
+                <el-table-column
+                        prop="teamOrder"
+                        label="序号"
+                        sortable
+                        width="120">
+                </el-table-column>
+                <el-table-column
+                        prop="serial"
+                        label="组号"
+                        width="120">
+                </el-table-column>
+            </el-table>
+
+
+
+        </template>
+
+    </div>
+
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign:[{
+                    serial:"无人报名"
+                }],
+                tableData:[],
+                maxTeam:'',
+                myResultData:[],
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+            back:function(){
+                window.history.back(-1);
+            },
+            toSeminar:function(){
+                window.location.href="modifyGrade.html"
+            },
+            handleCellClick(r,c,cell,e) {
+            }
+        },
+        mounted() {
+
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            let seminarId = localStorage.getItem("clickSeminar");
+            let classId = localStorage.getItem("clickClass");
+            axios.get(`/seminar/${seminarId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.maxTeam = data.maxTeam;
+                console.log(this.maxTeam);
+
+            });
+
+            axios.get(`/seminar/${seminarId}/class/${classId}/attendance`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+                let keys = Object.keys(data).filter(prop => /teamAttendance/.test(prop))
+                // let tabledata=[]
+                for (let key of keys) {
+                    this.tableData.push(data[key])
+                }
+                console.log(this.tableData)
+
+
+                let tableData = this.tableData
+                console.log(tableData)
+                var maxTeamCount = this.maxTeam
+
+                let resultData = []
+                for (let i = 1; i <= maxTeamCount; i++) {
+                    let teamObj = tableData.find(item => item.teamOrder === i)
+
+                    if (teamObj) {
+                        if (!teamObj.pptName) {
+                            resultData.push({
+                                ...teamObj,
+                                serial: teamObj.serial + "未提交"
+                            })
+                        } else {
+                            resultData.push(teamObj)
+                        }
+                    } else {
+                        resultData.push({
+                            teamOrder: i,
+                            serial: '未报名'
+                            //baomingurl: '填上可报名要跳去的页面的链接'
+
+                        })
+                    }
+                }
+                //console.log('哈哈',resultData)
+                this.myResultData=resultData
+            });
+
+        }
+
+    });
+</script>
+</html>

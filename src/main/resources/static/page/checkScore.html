@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>查看成绩</title>
+    <style>
+        .table1_11 table {
+            width:100%;
+            margin:15px 0
+        }
+        .table1_11 th {
+            background-color:#1E90FF;
+            color:#FFFFFF
+        }
+        .table1_11,.table1_11 th,.table1_11 td
+        {
+            font-size:0.95em;
+            text-align:center;
+            padding:4px;
+            border:1px solid #dddddd;
+            border-collapse:collapse
+        }
+        .table1_11 tr:nth-child(odd){
+            background-color:#c8dde8;
+        }
+        .table1_11 tr:nth-child(even){
+            background-color:#fdfdfd;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">查看成绩</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <template style="text-align: center">
+            <div>
+                <div>
+                    <table class="table1_11">
+                        <tr>
+                        <td style="width: 50px">序号</td>
+                        <td style="width: 50px">队名</td>
+                        <td style="width: 50px">展示</td>
+                        <td style="width: 50px">报告</td>
+                        <td style="width: 50px">提问</td>
+                        <td style="width: 50px">总分</td>
+                        <div class="line"></div>
+                        </tr>
+                        <tr v-for="item in myResultData">
+                            <td style="width: 100px">{{item.teamOrder}} </td>
+                            <td style="width: 100px"> {{item.serial}}</td>
+                            <td style="width: 100px"><input type="text" v-model="item.preScore" style="width:20px"></input></td>
+                            <td style="width: 100px"><input type="text" v-model="item.reportScore" style="width:20px"></input></td>
+                            <td style="width: 100px"><input type="text" v-model="item.questionScore" style="width:20px"></input></td>
+                            <td style="width: 100px">{{item.totalScore}}</td>
+                            <div class="line"></div>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </template>
+
+    </div>
+    <div class="footer_white">
+        <el-button type="primary" @click="back"> 确  认 <i class="el-icon-circle-check-outline el-icon--right"></i></el-button>
+        <el-button type="primary" @click="updata"> 修  改 <i class="el-icon-edit-outline el-icon--right"></i></el-button>
+
+    </div>
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign:[{
+                    serial:"无人报名"
+                }],
+                tableData:[],
+                maxTeam:'',
+                myResultData:[],
+                teamScore:[],
+            }
+        },
+        methods: {
+            handleClick(row) {
+                console.log(row);
+            },
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+            back:function(){
+                window.history.back(-1);
+            },
+            updata:function(){
+                console.log(this.myResultData)
+                let postData=[]
+                let jwt = localStorage.getItem('jwt');
+                let seminarId = localStorage.getItem("clickSeminar");
+                let preScore=0;
+                let reportScore=0;
+                let questionScore=0;
+                let teamId=0
+                let name=''
+                for(let i=0;i<this.maxTeam;i++)
+                {
+                    if(this.myResultData[i].serial==="未报名")
+                    {
+                        break;
+                    }
+                    preScore=this.myResultData[i].preScore;
+                    reportScore=this.myResultData[i].reportScore;
+                    questionScore=this.myResultData[i].questionScore;
+                    teamId=this.myResultData[i].teamId;
+                    name=this.myResultData[i].name;
+                    postData={
+                        "teamId":teamId,
+                        "preScore": preScore,
+                        "reportScore":reportScore,
+                        "questionScore": questionScore,
+                    }
+                    console.log(postData)
+                    axios({
+                        method: 'put',
+                        url: `/seminar/${seminarId}/team/${teamId}/seminarscore`,
+                        data: {
+                            "teamId":teamId,
+                            "preScore": preScore,
+                            "reportScore":reportScore,
+                            "questionScore": questionScore,
+                        },
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then(response => {
+                        window.location.href="checkScore.html";
+                    });
+
+
+                }
+            },
+            handleCellClick(r,c,cell,e) {
+            }
+        },
+        mounted() {
+
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            let seminarId = localStorage.getItem("clickSeminar");
+            let classId = localStorage.getItem("clickClass");
+            axios.get(`/seminar/${seminarId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.maxTeam = data.maxTeam;
+                console.log(this.maxTeam);
+
+            });
+
+            axios.get(`/seminar/${seminarId}/class/${classId}/attendance`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+                let keys = Object.keys(data).filter(prop => /teamAttendance/.test(prop))
+                // let tabledata=[]
+                for (let key of keys) {
+                    this.tableData.push(data[key])
+                }
+                console.log(this.tableData)
+
+
+                let tableData = this.tableData
+                console.log(tableData)
+                var maxTeamCount = this.maxTeam
+
+                let resultData = []
+                for (let i = 1; i <= maxTeamCount; i++) {
+                    let teamObj = tableData.find(item => item.teamOrder === i)
+                    var teamId=teamObj.teamId
+                    axios.get(`/seminar/${seminarId}/team/${teamId}/seminarscore`, {
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then((response) =>{
+                        let data=response.data
+                        let preScore=data.preScore
+                        let reportScore=data.reportScore
+                        let questionScore=data.questionScore
+                        let totalScore=data.totalScore
+                        if (teamObj) {
+                            if (!teamObj.reportName) {
+                                resultData.push({
+                                    ...teamObj,
+                                    serial: teamObj.serial ,
+                                    preScore:preScore,
+                                    reportScore:reportScore,
+                                    questionScore:questionScore,
+                                    totalScore:totalScore,
+                                    teamId:teamObj.teamId,
+                                    name:teamObj.serial,
+                                })
+                            } else {
+                                resultData.push(teamObj)
+                            }
+                        } else {
+                            resultData.push({
+                                teamOrder: i,
+                                serial: '未报名',
+
+                                //baomingurl: '填上可报名要跳去的页面的链接'
+
+                            })
+                        }
+                    })
+
+                }
+                this.myResultData=resultData
+            });
+
+        }
+
+    });
+</script>
+</html>

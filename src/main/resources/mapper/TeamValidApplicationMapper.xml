@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.TeamValidApplicationMapper" >
+  <resultMap id="BaseResultMap" type="com.example.rockclass.entity.TeamValidApplication" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="reason" property="reason" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <association column="team_id" property="team" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Team"
+                 select="com.example.rockclass.mapper.TeamMapper.selectByPrimaryKey"/>
+    <association column="teacher_id" property="teacher" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Teacher"
+                 select="com.example.rockclass.mapper.TeacherMapper.selectByTeacherId"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from team_valid_application
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.example.rockclass.entity.TeamValidApplication" useGeneratedKeys="true" keyProperty="id">
+    insert into team_valid_application ( team_id, teacher_id,
+      reason, status)
+    values ( #{team.id,jdbcType=BIGINT}, #{teacher.id,jdbcType=BIGINT},
+      #{reason,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.rockclass.entity.TeamValidApplication" >
+    update team_valid_application
+    set team_id = #{team.id,jdbcType=BIGINT},
+      teacher_id = #{teacher.id,jdbcType=BIGINT},
+      reason = #{reason,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, team_id, teacher_id, reason, status
+    from team_valid_application
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectByTeacherIdAndStatus" resultMap="BaseResultMap" parameterType="map" >
+    select id, team_id, teacher_id, reason, status
+    from team_valid_application
+    where teacher_id = #{teacherId,jdbcType=BIGINT}
+    and status = #{status,jdbcType=TINYINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, team_id, teacher_id, reason, status
+    from team_valid_application
+  </select>
+</mapper>

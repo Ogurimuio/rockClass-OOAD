@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.KlassMapper" >
+  <resultMap id="BaseResultMap" type="com.example.rockclass.entity.Klass" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="grade" property="grade" jdbcType="INTEGER" />
+    <result column="klass_serial" property="klassSerial" jdbcType="TINYINT" />
+    <result column="klass_time" property="klassTime" jdbcType="VARCHAR" />
+    <result column="klass_location" property="klassLocation" jdbcType="VARCHAR" />
+    <association column="course_id" property="course" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Course"
+                 select="com.example.rockclass.mapper.CourseMapper.selectByPrimaryKey"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from klass
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.example.rockclass.entity.Klass" useGeneratedKeys="true" keyProperty="id">
+    insert into klass ( course_id, grade,
+      klass_serial, klass_time, klass_location
+      )
+    values ( #{course.id,jdbcType=BIGINT}, #{grade,jdbcType=INTEGER},
+      #{klassSerial,jdbcType=TINYINT}, #{klassTime,jdbcType=VARCHAR}, #{klassLocation,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.rockclass.entity.Klass" >
+    update klass
+    set course_id = #{course.id,jdbcType=BIGINT},
+      grade = #{grade,jdbcType=INTEGER},
+      klass_serial = #{klassSerial,jdbcType=TINYINT},
+      klass_time = #{klassTime,jdbcType=VARCHAR},
+      klass_location = #{klassLocation,jdbcType=VARCHAR},
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, course_id, grade, klass_serial, klass_time, klass_location
+    from klass
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectKlassByCourseId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, course_id, grade, klass_serial, klass_time, klass_location
+    from klass
+    where course_id = #{courseId,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, course_id, grade, klass_serial, klass_time, klass_location
+    from klass
+  </select>
+</mapper>

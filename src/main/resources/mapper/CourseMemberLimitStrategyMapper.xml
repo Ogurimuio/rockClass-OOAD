@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.CourseMemberLimitStrategyMapper" >
+  <resultMap id="BaseResultMap" type="com.example.rockclass.entity.CourseMemberLimitStrategy" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="min_member" property="minMember" jdbcType="TINYINT" />
+    <result column="max_member" property="maxMember" jdbcType="TINYINT" />
+    <association column="course_id" property="course" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Course"
+                 select="com.example.rockclass.mapper.CourseMapper.selectByPrimaryKey"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from course_member_limit_strategy
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.example.rockclass.entity.CourseMemberLimitStrategy" useGeneratedKeys="true" keyProperty="id">
+    insert into course_member_limit_strategy ( course_id, min_member,
+      max_member)
+    values (#{course.id,jdbcType=BIGINT}, #{minMember,jdbcType=TINYINT},
+      #{maxMember,jdbcType=TINYINT})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.rockclass.entity.CourseMemberLimitStrategy" >
+    update course_member_limit_strategy
+    set course_id = #{course.id,jdbcType=BIGINT},
+      min_member = #{minMember,jdbcType=TINYINT},
+      max_member = #{maxMember,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, course_id, min_member, max_member
+    from course_member_limit_strategy
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, course_id, min_member, max_member
+    from course_member_limit_strategy
+  </select>
+</mapper>

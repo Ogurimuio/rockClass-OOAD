@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="../css/accountAndSet.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <script src=" https://js.cybozu.cn/momentjs/2.22.1/moment-with-locales.min.js"></script>
+    <script src="https://cdn.bootcss.com/moment.js/2.22.2/moment.min.js"></script>
+    <title>创建课程</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">创建课程</div>
+        </p>
+    </div>
+
+    <div class="container">
+
+        <div class="studentInfo" id="studentInfo">
+            <el-form model="formLabelAlign">
+
+                <el-form-item label="课程名">
+                    <el-input type="input" v-model="formLabelAlign.name"></el-input>
+                </el-form-item>
+                <el-form-item label="课程要求">
+                    <el-input type="textarea"  v-model="formLabelAlign.intro"></el-input>
+                </el-form-item>
+                <el-form-item label="成绩计算规则">
+                </el-form-item>
+                <el-form-item label="展示">
+                    <el-input type="input" v-model="formLabelAlign.presentationWeight"></el-input>
+                </el-form-item>
+                <el-form-item label="提问">
+                    <el-input type="input" v-model="formLabelAlign.questionWeight"></el-input>
+                </el-form-item>
+                <el-form-item label="报告">
+                    <el-input type="input" v-model="formLabelAlign.reportWeight"></el-input>
+                </el-form-item>
+
+
+                <el-form-item label="组队开始时间">
+                    <el-date-picker
+                            v-model="formLabelAlign.startTeamTime"
+                            type="date"
+                            placeholder="选择日期">
+                    </el-date-picker>
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="组队截止时间">
+                    <el-date-picker
+                            v-model="formLabelAlign.endTeamTime"
+                            type="date"
+                            placeholder="选择日期">
+                    </el-date-picker>
+
+                </el-form-item>
+                <el-form-item  label="组队要求">
+                </el-form-item>
+                <el-form-item  label="最少组队人数">
+                <el-input-number v-model="formLabelAlign.minMemberNumber" @change="handleChange" :min="0" :max="10"></el-input-number>
+                </el-form-item>
+                <el-form-item  label="最大组队人数">
+                    <el-input-number v-model="formLabelAlign.maxMemberNumber" @change="handleChange" :min="0" :max="10"></el-input-number>
+                </el-form-item>
+
+                <p><div class="line"></div></p>
+                <el-form-item  label="组内选修课程人数">
+                </el-form-item>
+
+                <el-form-item
+                        v-for="(domain, index) in dynamicValidateForm"
+                        :label="课程名"
+                        :key="domain.courseId"
+                >
+
+                    <el-form-item>
+                        <el-select v-model="domain.courseId"placeholder="请选择">
+                            <el-option
+                                    v-for="item in course"
+                                    :label="item.courseName"
+                                    :value="item.courseId">
+                                {{item.courseName}}  {{item.teacherName}}
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-form-item  label="最少人数">
+                            <el-input-number v-model="domain.minMemberNumber" @change="handleChange" :min="0" :max="10"></el-input-number>
+                        </el-form-item>
+                        <el-form-item  label="最大人数">
+                            <el-input-number v-model="domain.maxMemberNumber" @change="handleChange" :min="0" :max="10"></el-input-number>
+                        </el-form-item>
+                    </el-form-item>
+                </el-form-item>
+
+                <el-form-item>
+                    <el-button @click="addDomain">新增</el-button>
+                </el-form-item>
+                <p><div class="line"></div></p>
+
+                <el-form-item  label="冲突课程">
+                </el-form-item>
+                    <el-form-item
+                            v-for="(domain3, i) in dynamicValidateForm2"
+
+                    >
+                            <el-form-item
+                                    v-for="(domain2, index) in domain3"
+                                    :key="domain2.courseId"
+                            >
+                                <el-form-item>
+                                    <el-select v-model="domain3[index]" placeholder="请选择">
+                                        <el-option
+                                                v-for="item in course"
+                                                :label="item.courseName"
+                                                :value="item.courseId">
+                                            {{item.courseName}}  {{item.teacherName}}
+                                        </el-option>
+
+                                    </el-select>
+
+
+                                </el-form-item>
+
+                            </el-form-item>
+                        <el-button @click="addDomain2(i)">新增冲突项</el-button>
+                        <p><div class="line"></div></p>
+                    </el-form-item>
+                    <!--<p><div class="line"></div></p>-->
+                    <p>
+                    <el-form-item>
+                        <el-button @click="addDomain3">新增冲突组</el-button>
+                    </el-form-item>
+                    </p>
+
+            </el-form>
+
+        </div>
+        </br></br></br>
+        <div class="footer_white">
+            <el-button type="primary" @click="sub">提交</el-button>
+        </div>
+
+    </div>
+</div>
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign:{
+                    "name": "",
+                    "intro": "",
+                    "presentationWeight": null,
+                    "questionWeight": null,
+                    "reportWeight": null,
+                    "minMemberNumber": null,
+                    "maxMemberNumber": null,
+                    "startTeamTime": null,
+                    "endTeamTime": null,
+                    "strategysStatus":null,
+                    "courseMemberLimitStrategyIsConflict":null,
+                    "courseMemberLimitStrategys":[
+                        {
+                            "courseId":17,
+                            "minMemberNumber":3,
+                            "maxMemberNumber":5
+                        },
+                        {
+                            "courseId":20,
+                            "minMemberNumber":3,
+                            "maxMemberNumber":5
+                        }],
+                    "conflictCourseStrategys": [[16,18,19],[17,20]]
+
+                },
+                course:[{
+                    courseId: 16,
+                    courseName: "OOAD",
+                    teacherName: "邱明",
+                }],
+                value:'',
+                dynamicValidateForm: [
+                    {
+                        courseId:null,
+                        minMemberNumber:null,
+                        maxMemberNumber:null,
+                    }
+                ],
+                dynamicValidateForm2:[[]]
+
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+            sub:function(){
+                let jwt = localStorage.getItem('jwt');
+                let courseId=localStorage.getItem('clickCourse');
+                var startTime=moment(this.formLabelAlign.startTeamTime,).format("YYYY-MM-DDThh:mm:ss")
+                var endTime=moment(this.formLabelAlign.endTeamTime,).format("YYYY-MM-DDThh:mm:ss")
+                console.log(this.dynamicValidateForm)
+                console.log(this.dynamicValidateForm2)
+
+                axios({
+                    method:"post",
+                    url:`/course`,
+                    data:{
+                        "name": this.formLabelAlign.name,
+                        "intro": this.formLabelAlign.intro,
+                        "presentationWeight": this.formLabelAlign.presentationWeight,
+                        "questionWeight": this.formLabelAlign.questionWeight,
+                        "reportWeight": this.formLabelAlign.reportWeight,
+                        "minMemberNumber": this.formLabelAlign.minMemberNumber,
+                        "maxMemberNumber": this.formLabelAlign.maxMemberNumber,
+                        "startTeamTime": startTime,
+                        "endTeamTime": endTime,
+                        "strategysStatus":0,
+                        "courseMemberLimitStrategyIsConflict":0,
+                        "courseMemberLimitStrategys":this.dynamicValidateForm,
+                        "conflictCourseStrategys": this.dynamicValidateForm2
+                    },
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+
+                    window.location.href="myCourse.html"
+                })
+                window.location.href="myCourse.html"
+                // var that=this.formLabelAlign
+                // axios.post(`/course`,that)
+                //     .then(res=>{
+                //         console.log('res=>',res);
+                //     })
+            },
+            addDomain() {
+                this.dynamicValidateForm.push({
+                    courseId:null,
+                    minMemberNumber:null,
+                    maxMemberNumber:null
+                });
+            },
+            addDomain2(i) {
+                this.dynamicValidateForm2[i].push(0);
+            },
+            addDomain3() {
+                this.dynamicValidateForm2.push([0]);
+            }
+        },
+        mounted() {
+            // console.log(this.formLabelAlign=response2);
+            // console.log(this.formLabelAlign);
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            var courseId = localStorage.getItem("clickCourse");
+            axios.get(`/course/allcourse`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.course = data;
+                console.log(this.course);
+            });
+
+        },
+    });
+
+
+</script>
+</body>
+
+</html>

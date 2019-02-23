@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.TeamStrategyMapper" >
+  <resultMap id="BaseResultMap" type="com.example.rockclass.entity.TeamStrategy" >
+    <result column="strategy_id" property="strategyId" jdbcType="BIGINT" />
+    <result column="strategy_serial" property="strategySerial" jdbcType="TINYINT" />
+    <result column="strategy_name" property="strategyName" jdbcType="VARCHAR" />
+    <association column="course_id" property="course" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Course"
+                 select="com.example.rockclass.mapper.CourseMapper.selectByPrimaryKey"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from team_strategy
+    where course_id = #{courseId,jdbcType=BIGINT}
+      and strategy_id = #{strategyId,jdbcType=BIGINT}
+      and strategy_name = #{strategyName,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.example.rockclass.entity.TeamStrategy" >
+    insert into team_strategy (course_id, strategy_id, strategy_name ,strategy_serial
+      )
+    values (#{course.id,jdbcType=BIGINT}, #{strategyId,jdbcType=BIGINT}, #{strategyName,jdbcType=VARCHAR},#{strategySerial,jdbcType=TINYINT}
+      )
+  </insert>
+
+  <select id="selectByCourseIdAndStrategyName" resultMap="BaseResultMap" parameterType="map" >
+    select course_id, strategy_id, strategy_name,strategy_serial
+    from team_strategy
+    where course_id = #{courseId,jdbcType=BIGINT} and strategy_name = #{strategyName,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByCourseId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select course_id, strategy_id, strategy_name,strategy_serial
+    from team_strategy
+    where course_id = #{courseId,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select course_id, strategy_id, strategy_name,strategy_serial
+    from team_strategy
+  </select>
+</mapper>

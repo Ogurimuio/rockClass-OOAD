@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>讨论课详情</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.location.href='mySeminar.html'"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">讨论课详情</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <el-form model="formLabelAlign">
+
+            <el-form-item label="主题">
+                <el-input type="text" readonly v-model="formLabelAlign.seminarName"></el-input>
+            </el-form-item>
+            <el-form-item label="课次序号">
+                <el-input type="text" readonly v-model="formLabelAlign.seminarSerial"></el-input>
+            </el-form-item>
+            <el-form-item label="要求">
+                <el-input type="textarea" autosize readonly v-model="formLabelAlign.introduction"></el-input>
+            </el-form-item>
+            <el-form-item label="课程情况">
+                <el-input type="text" readonly value="进行中"></el-input>
+                <el-button type="text" onclick="window.location.href='checkSignUp.html'">查看信息</el-button>
+            </el-form-item>
+        </el-form>
+    </div>
+    <div class="footer_white">
+        <el-button type="danger" @click="toSeminar">进入讨论课<i class="el-icon-document el-icon--right"></i></el-button>
+
+    </div>
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign:null,
+
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+            checkInfo:function(){
+                window.location.href="checkPPT.html";
+            },
+            toSeminar:function(){
+                window.location.href="seminaring.html"
+            },
+
+        },
+        mounted() {
+
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            let seminarId = localStorage.getItem("clickSeminar");
+            let classId = localStorage.getItem("clickClass");
+            axios.get(`/seminar/${seminarId}/class/${classId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+
+            })
+
+
+        }
+
+    });
+</script>
+</html>

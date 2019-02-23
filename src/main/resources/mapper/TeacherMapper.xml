@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.TeacherMapper" >
+  <resultMap id="BaseResultMap" type="com.example.rockclass.entity.Teacher" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="account" property="account" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="teacher_name" property="teacherName" jdbcType="VARCHAR" />
+    <result column="is_active" property="isActive" jdbcType="TINYINT" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+  </resultMap>
+  <update id="updateByAccount" parameterType="com.example.rockclass.entity.Teacher" >
+    update teacher
+    set account = #{account,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      teacher_name = #{teacherName,jdbcType=VARCHAR},
+      is_active = #{isActive,jdbcType=TINYINT},
+      email = #{email,jdbcType=VARCHAR}
+    where account = #{account,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByAccount" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select id, account, password, teacher_name, is_active, email
+    from teacher
+    where account = #{account,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByTeacherId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, account, password, teacher_name, is_active, email
+    from teacher
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, account, password, teacher_name, is_active, email
+    from teacher
+  </select>
+</mapper>

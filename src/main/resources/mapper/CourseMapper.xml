@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.rockclass.mapper.CourseMapper" >
+  <resultMap id="BaseResultMap" type="com.example.rockclass.entity.Course" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="course_name" property="courseName" jdbcType="VARCHAR" />
+    <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+    <result column="presentation_percentage" property="presentationPercentage" jdbcType="TINYINT" />
+    <result column="question_percentage" property="questionPercentage" jdbcType="TINYINT" />
+    <result column="report_percentage" property="reportPercentage" jdbcType="TINYINT" />
+    <result column="team_start_time" property="teamStartTime" jdbcType="TIMESTAMP" />
+    <result column="team_end_time" property="teamEndTime" jdbcType="TIMESTAMP" />
+    <result column="team_main_course_id" property="teamMainCourseId" jdbcType="BIGINT" />
+    <result column="seminar_main_course_id" property="seminarMainCourseId" jdbcType="BIGINT" />
+    <association column="teacher_id" property="teacher" jdbcType="BIGINT" javaType="com.example.rockclass.entity.Teacher"
+                 select="com.example.rockclass.mapper.TeacherMapper.selectByTeacherId"/>
+  </resultMap>
+
+
+  <insert id="insert" parameterType="com.example.rockclass.entity.Course" useGeneratedKeys="true" keyProperty="id" >
+    insert into course (teacher_id, course_name,
+      introduction, presentation_percentage, question_percentage,
+      report_percentage, team_start_time, team_end_time,
+      team_main_course_id, seminar_main_course_id)
+    values ( #{teacher.id,jdbcType=BIGINT}, #{courseName,jdbcType=VARCHAR},
+      #{introduction,jdbcType=VARCHAR}, #{presentationPercentage,jdbcType=TINYINT}, #{questionPercentage,jdbcType=TINYINT},
+      #{reportPercentage,jdbcType=TINYINT}, #{teamStartTime,jdbcType=TIMESTAMP}, #{teamEndTime,jdbcType=TIMESTAMP},
+      #{teamMainCourseId,jdbcType=BIGINT}, #{seminarMainCourseId,jdbcType=BIGINT})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.rockclass.entity.Course" >
+    update course
+    set teacher_id = #{teacher.id,jdbcType=BIGINT},
+      course_name = #{courseName,jdbcType=VARCHAR},
+      introduction = #{introduction,jdbcType=VARCHAR},
+      presentation_percentage = #{presentationPercentage,jdbcType=TINYINT},
+      question_percentage = #{questionPercentage,jdbcType=TINYINT},
+      report_percentage = #{reportPercentage,jdbcType=TINYINT},
+      team_start_time = #{teamStartTime,jdbcType=TIMESTAMP},
+      team_end_time = #{teamEndTime,jdbcType=TIMESTAMP},
+      team_main_course_id = #{teamMainCourseId,jdbcType=BIGINT},
+      seminar_main_course_id = #{seminarMainCourseId,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, teacher_id, course_name, introduction, presentation_percentage, question_percentage,
+    report_percentage, team_start_time, team_end_time, team_main_course_id, seminar_main_course_id
+    from course
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByTeacherId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, teacher_id, course_name, introduction, presentation_percentage, question_percentage,
+    report_percentage, team_start_time, team_end_time, team_main_course_id, seminar_main_course_id
+    from course
+    where teacher_id = #{teacherId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, teacher_id, course_name, introduction, presentation_percentage, question_percentage, 
+    report_percentage, team_start_time, team_end_time, team_main_course_id, seminar_main_course_id
+    from course
+  </select>
+</mapper>

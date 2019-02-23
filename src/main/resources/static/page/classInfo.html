@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="../css/accountAndSet.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>班级信息</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='window.history.back(-1);'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">班级信息</div>
+        </p>
+    </div>
+
+    <div class="container">
+            <div v-for="klass in formLabelAlign">
+                <el-form >
+                    <el-form-item label="班级名">
+                        <el-input type="input" id="show-input" display v-model="klass.name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="讨论课时间">
+                        <el-input type="textarea" id="show-input" display v-model="klass.time"></el-input>
+                    </el-form-item>
+                    <el-form-item label="讨论课地点">
+                        <el-input type="input" id="show-input" display v-model="klass.classroom"></el-input>
+                    </el-form-item>
+                    <el-form-item label="学生名单">
+                        <input type="file" class="chooseFileBtn">
+                    </el-form-item>
+                    <div style="text-align: center">
+                        <el-button type="primary" @click="poststu(klass.id)">提交名单</el-button>
+                        <el-button type="primary" @click="dele">删除班级</el-button>
+                    </div>
+                    <div class="line" style="margin-bottom: 5%;margin-top: 5%"></div>
+                </el-form>
+            </div>
+        </div>
+        </br></br></br>
+        <div class="footer_white">
+            <el-button type="danger" onclick="window.location.href='createClass.html'">新增班级</el-button>
+        </div>
+
+    </div>
+</div>
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign: null
+            }
+        },
+        methods: {
+            handleCommand(command) {
+
+                this.$message('click on item' + command);
+            },
+            poststu: function(id){
+                let jwt = localStorage.getItem('jwt');
+                let classId = id;
+                var files = document.getElementsByClassName("chooseFileBtn")[0].files;
+
+
+                console.log(files);
+
+                let formData = new FormData();
+                formData.append("file", files[0]);
+
+                axios({
+                    method: 'put',
+                    url:`/class/${classId}`,
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    },
+                    data: formData,
+                    contentType: false,
+                    processData: false
+                }).then(() => {
+                    alert("导入成功！");
+                })
+            },
+            dele:function(){
+                let jwt = localStorage.getItem('jwt');
+                let classId=localStorage.getItem('clickClass');
+                axios.delete(`/class/${classId}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+                    window.location.href="classInfo.html"
+                })
+            },
+        },
+        mounted() {
+            // console.log(this.formLabelAlign=response2);
+            // console.log(this.formLabelAlign);
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            let courseId=localStorage.getItem('clickCourse');
+            axios.get(`/course/${courseId}/class`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+
+            })
+
+        },
+    });
+
+
+</script>
+</body>
+
+</html>

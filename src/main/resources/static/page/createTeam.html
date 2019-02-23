@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+
+    <title>创建组队</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_student'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar_s.html'">讨论课</el-dropdown-item>
+
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">查看组队</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <el-form>
+            <el-form-item label="小组名">
+                <el-input v-model="formLabelAlign.name" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="选择班级">
+                <el-select v-model="value" placeholder="请选择">
+                    <el-option v-for="item in klass" :label="item.name" :value="item.id">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+        <el-collapse>
+
+            <el-collapse-item title="未组队学生">
+                <div style="text-align: center;margin-top: 4%">
+                    <el-checkbox-group v-model="checkList">
+                    <el-checkbox v-for="stu in noTeam" :label="stu.id">{{stu.account}}  {{stu.name}}</el-checkbox>
+                    </el-checkbox-group>
+                </div>
+                <div class="line"></div>
+            </el-collapse-item>
+
+        </el-collapse>
+        </el-form>
+        <!--<div v-for="item in formLabelAlign">-->
+        <!--<p>{{item.name}}</p>-->
+        <!--</div>-->
+    </div>
+    <br /><br/><br/>
+    <div class="footer_white">
+        <el-button type="primary" @click="sub">确认提交</el-button>
+    </div>
+</div>
+</body>
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign: {
+                    "name": null,
+                    "classId": 1,
+                },
+                klass: null,
+                leader:null,
+                noTeam:null,
+                value:'',
+                value2:[],
+                checkList:[],
+                teamId:null
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+
+            open:function() {
+
+                this.$prompt('请输入申请理由', '提示', {
+                    confirmButtonText: '提交',
+                    cancelButtonText: '取消',
+                }).then(({ value }) => {
+                    let jwt = localStorage.getItem('jwt');
+                    var courseId=localStorage.getItem('clickCourse');
+                    var classId=this.value;
+                   var teamId=this.teamId
+                    var leaderId=this.leader.id;
+                    axios({
+                        method: 'post',
+                        url: `/team/${teamId}/teamvalidrequest`,
+                        data: {
+                            "requestType": "teamValid",
+                            "courseId":courseId,
+                            "classId": classId,
+                            "teamId": teamId ,
+                            "learderId": leaderId,
+                            "reason": value
+                        },
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then(response => {
+                        window.location.href="myTeamInfo_panduan.html";
+                        // window.location.href="myTeamInfo_panduan.html";
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '取消输入'
+                    });
+                });
+            },
+
+            sub:function(){
+                let jwt = localStorage.getItem('jwt');
+                let courseId=localStorage.getItem('clickCourse');
+                let classId=this.value;
+                console.log(this.checkList)
+
+                axios({
+                    method: 'post',
+                    url: `/course/${courseId}/class/${classId}/team`,
+                    data: {
+                        "name": this.formLabelAlign.name,
+                        "courseId": courseId,
+                        "classId": classId,
+                        "leader": {"id":this.leader.id, "name":this.leader.name},
+                        "members": this.checkList,
+                    },
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then(response => {
+                    var data = response.data;
+                    this.teamId=data
+                    // window.location.href="myTeamInfo_panduan.html";
+                    console.log(this.teamId)
+                    var teamId=this.teamId
+                        axios({
+                            method: 'get',
+                            url: `/team/${teamId}/approve`,
+                            headers: {
+                                'Authorization': 'Bearer ' + jwt,
+                            }
+                        }).then(response1 => {
+                            var valid=response1.data
+                            console.log(valid.isValid)
+
+                            if(valid.isValid===1){
+                                console.log("有效")
+                                window.location.href="myTeamInfo_panduan.html";
+                            }
+                            else if(valid.isValid===0){
+                                console.log("无效")
+                                this.open()
+                            }
+                        });
+                });
+
+            },
+
+        },
+        mounted() {
+            // console.log(this.formLabelAlign=response2);
+            // console.log(this.formLabelAlign);
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            let courseId=localStorage.getItem('clickCourse');
+
+            axios.get(`/course/${courseId}/noTeam`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.noTeam = data;
+
+            });
+            axios.get(`/course/${courseId}/class`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.klass = data;
+                console.log(this.klass);
+
+            });
+            axios.get(`/user/information`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.leader = data;
+                console.log(this.leader);
+
+            });
+        }
+
+    });
+</script>
+</html>

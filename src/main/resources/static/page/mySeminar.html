@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>我的讨论课</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">我的讨论课</div>
+        </p>
+    </div>
+
+<div class="container">
+    <!--<el-collapse>-->
+        <!--<el-collapse-item :title="item.name" v-for="item in formLabelAlign" @click="choose(item)">-->
+        <!--</el-collapse-item>-->
+    <!--</el-collapse>-->
+    <div v-for="item in formLabelAlign" @click="choose(item)">
+        <p>{{item.name}}</p>
+        <div class="line"></div>
+    </div>
+</div>
+</div>
+</body>
+<script>
+
+    var combineObjectInList = function(arr, item, list) {   //数组去除重复，item为重复判定项，list为重复记录需要累加的值的数组
+        var obj = {};
+        var a = [];
+        for(var i in arr) {
+            if(!obj[arr[i][item]]) {
+                obj[arr[i][item]] = copyObj(arr[i]);  //数组克隆
+            } else if(!!obj[arr[i][item]]) {
+                for(var j in list) {
+                    obj[arr[i][item]][list[j]] = obj[arr[i][item]][list[j]] + parseFloat(arr[i][list[j]]);
+                }
+            }
+        }
+        for(var k in obj) {
+            a.push(obj[k]);
+        }
+        return a;
+
+    }
+    var copyObj = function(obj) {          //obj arr 对象的克隆（区分于指针赋值）
+        if(obj.constructor == Array) {
+            var a = [];
+            for(var i in obj) {
+                a.push(obj[i]);
+            }
+            return a;
+        } else {
+            var o = {}
+            for(var i in obj) {
+                o[i] = obj[i];
+            }
+            return o;
+        }
+
+    }
+    function goto() {
+        window.location.href="seminarRound.html";
+    }
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign: [
+                    {"id": 0,
+                        "isShareTeam":true,
+                        "isShareSeminar":false,
+                        "name": "OOAD",
+                        "className":"2016-2",
+                        "classId":0,
+                        "teacherName":"邱明"
+                    }, {
+                    "id":0,
+                        "isShareTeam":true,"isShareSeminar":false, "name": "J2EE","className":"2016-1","classId":0,"teacherName":"邱明"}]
+            }
+        },
+        methods: {
+            handleCommand(command) {
+
+                this.$message('click on item' + command);
+            },
+            choose:function (item){
+                let el=item.id;
+                localStorage.setItem("clickCourse",el);
+                goto();
+            }
+            // fn: function (e) {
+            //     var el=e.currentTarget; // 当前元素
+            //     var idd=el.id;
+            //     localStorage.setItem("click",idd);
+            //     console.log(idd);
+            //     back();
+            // }
+        },
+        mounted() {
+            // console.log(this.formLabelAlign=response2);
+            // console.log(this.formLabelAlign);
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            axios.get(`/course`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+                this.formLabelAlign=combineObjectInList(this.formLabelAlign,"id",);
+            })
+                .catch(function (error) {
+                    console.log(error);
+                    alert(error);
+                    console.log(this.formLabelAlign);
+                });
+
+        },
+
+    });
+
+</script>
+</html>

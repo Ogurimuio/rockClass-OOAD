@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>待办</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">待办</div>
+        </p>
+    </div>
+    <div class="container">
+        <el-collapse v-if="commission" accordion>
+            <el-collapse-item title="共享分组" key = "shareRequest.teamShareId" v-for="shareRequest in commission.teamShareRequests" >
+                {{shareRequest.masterCourseName+"  "+shareRequest.teacherName}} 提出与您的 {{shareRequest.recieveCourseName}} 共享分组
+                <p style="text-align: center">
+                    <el-button type="danger" @click="opration0(shareRequest)">拒绝</el-button>
+                    <el-button type="success" @click="opration1(shareRequest)">同意</el-button>
+                </p>
+            </el-collapse-item>
+
+            <el-collapse-item title="特殊分组申请" key = "teamRequest.id" v-for="teamRequest in commission.teamValidRequests" >
+                {{teamRequest.className+"  "+teamRequest.leaderName}} 由于 {{teamRequest.reason}} 申请特殊分组
+                <p style="text-align: center">
+                    <el-button type="danger" @click="teamOpration0(teamRequest)">拒绝</el-button>
+                    <el-button type="success" @click="teamOpration1(teamRequest)">同意</el-button>
+                </p>
+            </el-collapse-item>
+
+        </el-collapse>
+    </div>
+
+</div>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                commission: null,
+            }
+        },
+        methods: {
+            handleCommand(command) {
+
+                this.$message('click on item' + command);
+            },
+            opration0:function(shareRequest) {
+                var teamShareId=shareRequest.teamShareId
+                let jwt = localStorage.getItem('jwt');
+                var params = new URLSearchParams();
+                params.append('isApprove', 0);
+                axios({
+                    method: "put",
+                    url: `/request/teamshare/${teamShareId}`,
+                    data: params,
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+
+                    window.location.href="myMessage.html"
+
+                    //back();
+                })
+
+
+            },
+            opration1:function(shareRequest) {
+                var teamShareId=shareRequest.teamShareId
+                let jwt = localStorage.getItem('jwt');
+                var params = new URLSearchParams();
+                params.append('isApprove', 1);
+                axios({
+                    method: "put",
+                    url: `/request/teamshare/${teamShareId}`,
+                    data:params,
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+
+                    window.location.href="myMessage.html"
+
+                    //back();
+                })
+
+            },
+            teamOpration0:function(teamRequest) {
+                var teamValidId=teamRequest.teamValidId;
+                let jwt = localStorage.getItem('jwt');
+                var params = new URLSearchParams();
+                params.append('isApprove',0);
+                axios({
+                    method: "put",
+                    url: `/request/teamvalid/${teamValidId}`,
+                    data:params,
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+                    window.location.href="myMessage.html"
+
+                    //back();
+                })
+
+
+            },
+            teamOpration1:function(teamRequest) {
+                var teamValidId=teamRequest.teamValidId;
+                let jwt = localStorage.getItem('jwt');
+                var params = new URLSearchParams();
+                params.append('isApprove',1);
+                axios({
+                    method: "put",
+                    url: `/request/teamvalid/${teamValidId}`,
+                    data:params,
+                    headers: {
+                        'Authorization': 'Bearer ' + jwt,
+                    }
+                }).then((response) => {
+                    window.location.href="myMessage.html"
+
+                    //back();
+                })
+
+            },
+
+
+            // teamOpration:funtion(teamRequest, status) {
+            //     var teamValidId=teamRequest.teamValidId;
+            //     let jwt = localStorage.getItem('jwt');
+            //     if(status==1){
+            //         axios({
+            //                 method:'put',
+            //                 url:`/request/teamvalid/${teamValidId}`,
+            //                 data:{
+            //                     isApprove:1
+            //                 },
+            //                 headers: {
+            //                     'Authorization': 'Bearer ' + jwt,
+            //                 }
+            //             }.then(response => {
+            //                 this.$toast.success('操作成功')
+            //                 this.getCommission()
+            //             })
+            //                 .catch(error => {
+            //                     this.$toast.error('操作失败')
+            //                     console.log(error)
+            //                 })
+            //         )
+            //     }
+            //     else(status==0)
+            //     {
+            //         axios({
+            //                 method:'put',
+            //                 url:`/request/teamshare/${teamShareId}`,
+            //                 data:{
+            //                     isApprove:0
+            //                 },
+            //                 headers: {
+            //                     'Authorization': 'Bearer ' + jwt,
+            //                 }
+            //             }.then(response => {
+            //                 this.$toast.success('操作成功')
+            //                 this.getCommission()
+            //             })
+            //                 .catch(error => {
+            //                     this.$toast.error('操作失败')
+            //                     console.log(error)
+            //                 })
+            //
+            //         )
+            //     }
+            //
+            // },
+    },
+        mounted() {
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            axios.get(`/request/message`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.commission = data;
+                console.log(this.commission);
+            })
+        }
+    })
+</script>
+
+</body>
+</html>

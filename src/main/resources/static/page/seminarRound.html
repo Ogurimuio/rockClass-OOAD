@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+
+    <title>讨论课</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_teacher.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar.html'">讨论课</el-dropdown-item>
+                    <el-dropdown-item command="c" onclick="window.location.href='myMessage.html'">代办</el-dropdown-item>
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">我的讨论课</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <el-collapse accordion  @change="handleChange">
+            <el-collapse-item :title="item.order" :name="item.id" v-for="(item,i) in formLabelAlign">
+                <div @click="roundSet(item)" >
+                    <div class="line"></div>
+                    <p>该轮轮次设置 ></p>
+                    <div class="line"></div>
+                </div>
+                <div>
+                    <el-collapse accordion @change="handleChange2">
+                            <el-collapse-item :title="semi.topic" :name="semi.id" v-for="semi in seminar">
+
+                                    <div style="margin-left: 30%" v-for="thing in klass"  @click="classChoose(thing)">
+                                        <p>{{thing.name}}</p>
+                                        <div class="line"></div>
+                                    </div>
+
+                            </el-collapse-item>
+                    </el-collapse>
+                        </div>
+            </el-collapse-item>
+        </el-collapse>
+        <!--<div v-for="item in formLabelAlign">-->
+        <!--<p>{{item.name}}</p>-->
+        <!--</div>-->
+    </div>
+    <br /><br /><br />
+    <div class="footer_white">
+        <el-button type="primary" onclick="window.location.href='createSeminar.html'">新建讨论课</el-button>
+    </div>
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign:null,
+                klass: null,
+                seminar:null
+            }
+        },
+                methods: {
+                    handleChange(val) {
+                        var roundId=val;
+                        localStorage.setItem("clickRound",roundId);
+                        let jwt = localStorage.getItem('jwt');
+                        axios.get(`/round/${roundId}/seminar`, {
+                            headers: {
+                                'Authorization': 'Bearer ' + jwt,
+                            }
+                        }).then((response) => {
+                            let data = response.data;
+                            this.seminar = data;
+                            console.log(this.seminar);
+                        })
+                    },
+                    handleChange2(val) {
+                        var el=val;
+                        localStorage.setItem("clickSeminar",el);
+                        let jwt = localStorage.getItem('jwt');
+                        let courseId = localStorage.getItem("clickCourse");
+                        axios.get(`/course/${courseId}/class`, {
+                            headers: {
+                                'Authorization': 'Bearer ' + jwt,
+                            }
+                        }).then((response) => {
+                            let data = response.data;
+                            this.klass = data;
+                            console.log(this.klass);
+                        });
+                    },
+                    roundSet:function (item){
+                        let el=item.id;
+                        localStorage.setItem("clickRound",el);
+                        window.location.href="modifyRound.html";
+                    },
+
+                    classChoose:function (thing){
+                        let el=thing.id;
+                        localStorage.setItem("clickClass",el);
+                        window.location.href="seminarInfo_panduan.html"
+                    }
+                },
+                mounted() {
+                    // console.log(this.formLabelAlign=response2);
+                    // console.log(this.formLabelAlign);
+                    async: false;
+                    let jwt = localStorage.getItem('jwt');
+                    let courseId = localStorage.getItem("clickCourse");
+                    axios.get(`/course/${courseId}/round`, {
+                        headers: {
+                            'Authorization': 'Bearer ' + jwt,
+                        }
+                    }).then((response) => {
+                        let data = response.data;
+                        this.formLabelAlign = data;
+                        console.log(this.formLabelAlign);
+                    });
+
+                }
+
+    });
+</script>
+</html>

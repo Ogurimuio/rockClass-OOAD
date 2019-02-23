@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Seminar specific</title>
+
+    <!--js-->
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+    <script type="text/javascript" src="../js/seminar.js"></script>
+
+    <!--css-->
+    <link rel="stylesheet" type="text/css" href="../css/pc_general.css">
+
+    <!--vue/element-->
+    <script src="https://cdn.bootcss.com/vue/2.5.18-beta.0/vue.js"></script>
+    <!-- 引入样式/组件库 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="aside">
+        <div class="header">
+            翻转课堂管理平台
+        </div>
+        <div class="logOut">
+            <div class="logOutBtn" id="logOutBtn">
+                退出系统
+            </div>
+        </div>
+        <div class="menu" id="menu">
+            <el-menu
+                    class="el-menu-vertical-demo"
+                    @open="handleOpen" @close="handleClose"
+                    background-color="#6699ff" text-color="#fff"
+                    active-text-color="#545c64">
+                <el-menu-item index="1" id="backBtn">
+                    <span slot="title">返回选择课程</span>
+                </el-menu-item>
+            </el-menu>
+            <el-menu
+                    default-active="2" class="el-menu-vertical-demo"
+                    @open="handleOpen" @close="handleClose"
+                    background-color="#8cb2ff" text-color="#fff"
+                    active-text-color="#545c64">
+                <el-menu-item index="2" id="seminarBtn">
+                    <span slot="title">讨论课</span>
+                </el-menu-item>
+                <el-menu-item index="3" id="exportListBtn">
+                    <span slot="title">查看成绩</span>
+                </el-menu-item>
+            </el-menu>
+        </div>
+    </div>
+    <div class="main">
+        <div class="header" id="main-header">
+            第一次讨论课
+        </div>
+        <div class="list">
+            <div class="infoDiv" id="infoDiv">
+                <p id="seminarTopic">主题：</p>
+                <p id="seminarIntro">内容：</p>
+                <p id="seminarSignUp">报名起止时间：</p>
+            </div>
+            <p>已报名小组</p>
+            <div class="list-table">
+                <table id="status-list">
+                    <tr>
+                        <th>展示次序</th>
+                        <th>小组号</th>
+                        <th>组长</th>
+                        <th id="changeArea">展示材料</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var menu = new Vue({
+        el: '#menu',
+        data: {
+        },
+        methods: {
+            handleOpen(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose(key, keyPath) {
+                console.log(key, keyPath);
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

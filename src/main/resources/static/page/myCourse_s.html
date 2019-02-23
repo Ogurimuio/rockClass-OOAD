@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link href="../css/header.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jwt.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+
+    <title>我的课程</title>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <p>
+        <div id="back" onclick="window.history.back(-1);"><i class="el-icon-arrow-left"></i></div>
+        <div id="add">
+            <el-dropdown @command="handleCommand">
+    <span class="el-dropdown-link">
+    <i class="el-icon-plus el-icon--right"></i>
+    </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="a" onclick="window.location.href='zhuye_student.html'">个人页
+                    </el-dropdown-item>
+                    <el-dropdown-item command="b" onclick="window.location.href='mySeminar_s.html'">讨论课</el-dropdown-item>
+
+
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
+        <div class="headerWord">我的课程</div>
+        </p>
+    </div>
+
+    <div class="container">
+        <el-collapse accordion>
+            <el-collapse-item :title="item.name" v-for="item in formLabelAlign">
+                <div @click="courseChoose(item)" >
+                    <div class="line"></div>
+                    <p onclick="window.location.href='courseInfo_s.html'">课程信息</p>
+                    <div class="line"></div>
+                    <div class="line"></div>
+                    <p onclick="window.location.href='checkMyGrade_s.html'">我的成绩</p>
+                    <div class="line"></div>
+                    <div class="line"></div>
+                    <p onclick="window.location.href='myTeamInfo_panduan.html'">我的组队</p>
+                    <div class="line"></div>
+                </div>
+
+    </el-collapse-item>
+    </el-collapse>
+    <!--<div v-for="item in formLabelAlign">-->
+    <!--<p>{{item.name}}</p>-->
+    <!--</div>-->
+</div>
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                formLabelAlign:null,
+                klass: null,
+                seminar:null
+            }
+        },
+        methods: {
+            handleCommand(command) {
+                this.$message('click on item' + command);
+            },
+
+            courseChoose:function(item){
+                let courseId=item.id;
+                localStorage.setItem("clickCourse",courseId);
+
+            },
+
+        },
+        mounted() {
+            // console.log(this.formLabelAlign=response2);
+            // console.log(this.formLabelAlign);
+            async: false;
+            let jwt = localStorage.getItem('jwt');
+            axios.get(`/course`, {
+                headers: {
+                    'Authorization': 'Bearer ' + jwt,
+                }
+            }).then((response) => {
+                let data = response.data;
+                this.formLabelAlign = data;
+                console.log(this.formLabelAlign);
+            });
+
+        }
+
+    });
+</script>
+</html>
